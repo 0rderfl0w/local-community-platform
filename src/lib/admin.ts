@@ -1,6 +1,6 @@
 import { supabase } from './supabase';
 import type { Event, Idea } from './types';
-import { attachPublicAuthors, PUBLIC_IDEA_COLUMNS } from './ideas';
+import { attachPublicAuthors } from './ideas';
 
 export type InviteRecord = {
   id: string;
@@ -96,8 +96,7 @@ export async function updateEvent(id: string, payload: Pick<Event, 'title' | 'de
 
 export async function listAdminIdeas() {
   const { data, error } = await supabase
-    .from('ideas')
-    .select(PUBLIC_IDEA_COLUMNS)
+    .rpc('list_visible_ideas')
     .order('created_at', { ascending: false });
   if (error) throw error;
   return attachPublicAuthors((data ?? []) as Idea[]);

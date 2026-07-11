@@ -19,7 +19,7 @@ type PublicAuthor = {
 export type IdeaPostingMode = 'anonymous' | 'account';
 export type RipInput = { title: string; body: string; category: RipCategory; tags: RipTag[] };
 export type CreateRipInput = RipInput & { mode: IdeaPostingMode };
-export const PUBLIC_IDEA_COLUMNS = 'id, slug, title, body, month_key, status, author_id, created_at, updated_at, category, tags';
+export const PUBLIC_IDEA_COLUMNS = 'id, slug, title, body, month_key, status, created_at, updated_at, category, tags';
 
 export async function attachPublicAuthors(ideas: Idea[]): Promise<Idea[]> {
   const ideaIds = ideas.map((idea) => idea.id);

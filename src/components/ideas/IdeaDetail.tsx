@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { toUserMessage } from '@/lib/errors';
-import { attachPublicAuthors, PUBLIC_IDEA_COLUMNS } from '@/lib/ideas';
+import { attachPublicAuthors } from '@/lib/ideas';
 import { ripCategoryLabel, ripTagLabel } from '@/lib/rips';
 import type { Idea } from '@/lib/types';
 import UpvoteButton from './UpvoteButton';
@@ -20,12 +20,12 @@ export default function IdeaDetail({ slug }: Props) {
       setLoading(true);
       setError('');
       try {
-        const { data, error: queryError } = await supabase
-          .from('ideas')
-          .select(PUBLIC_IDEA_COLUMNS)
+        const { data: rawData, error: queryError } = await supabase
+          .rpc('list_visible_ideas')
           .eq('slug', slug)
           .maybeSingle();
         if (queryError) throw queryError;
+        const data = rawData as Idea | null;
         if (!data) {
           setIdea(null);
           return;

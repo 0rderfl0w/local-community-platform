@@ -70,12 +70,17 @@ describe('delivery security contracts', () => {
     const publicGrant = migration.slice(migration.indexOf('grant select ('), migration.indexOf(') on table public.ideas'));
     expect(migration).toContain('revoke select on table public.ideas from anon, authenticated');
     expect(publicGrant).not.toContain('anonymous_visitor_id');
+    expect(publicGrant).not.toContain('author_id');
+    expect(migration).toContain('create or replace function public.list_visible_ideas()');
+    expect(migration).toContain('viewer_can_edit boolean');
     expect(migration).toContain('revoke all on table public.event_registration_counts from anon, authenticated');
     expect(migration).toContain('id <> existing_redemption.id');
     expect(migration.indexOf("raise exception 'invite use limit reached'"))
       .toBeLessThan(migration.indexOf('update public.invite_redemptions'));
     expect(ideas).toContain('PUBLIC_IDEA_COLUMNS');
+    expect(ideas).not.toContain("PUBLIC_IDEA_COLUMNS = 'id, slug, title, body, month_key, status, author_id");
     expect(feed).not.toContain("from('ideas').select('*')");
+    expect(feed).toContain("rpc('list_visible_ideas')");
     expect(detail).not.toContain(".select('*')");
   });
 

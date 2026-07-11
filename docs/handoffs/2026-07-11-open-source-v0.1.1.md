@@ -15,7 +15,8 @@ This release closes the independent security and fork-readiness review findings 
 
 ## Security changes
 
-- Migration `018_public_data_and_invite_capacity.sql` removes `anonymous_visitor_id` from `anon` and `authenticated` post reads.
+- Migration `018_public_data_and_invite_capacity.sql` removes both anonymous visitor IDs and member auth UUIDs from public post reads.
+- The safe post-list RPC returns only a per-viewer edit capability bit, never the underlying author identifier.
 - Public post queries request explicit safe columns instead of `*`.
 - External-event registration counts are no longer granted publicly.
 - Failed/uncompleted invite retries re-check capacity before transactional email delivery.

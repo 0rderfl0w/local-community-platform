@@ -10,12 +10,51 @@ grant select (
   body,
   month_key,
   status,
-  author_id,
   created_at,
   updated_at,
   category,
   tags
 ) on table public.ideas to anon, authenticated;
+
+-- Expose author ownership only as a capability bit. The underlying auth user
+-- UUID never crosses the public Data API boundary.
+create or replace function public.list_visible_ideas()
+returns table (
+  id uuid,
+  slug text,
+  title text,
+  body text,
+  month_key text,
+  status text,
+  created_at timestamptz,
+  updated_at timestamptz,
+  category text,
+  tags text[],
+  viewer_can_edit boolean
+)
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select
+    ideas.id,
+    ideas.slug,
+    ideas.title,
+    ideas.body,
+    ideas.month_key,
+    ideas.status,
+    ideas.created_at,
+    ideas.updated_at,
+    ideas.category,
+    ideas.tags,
+    (auth.uid() is not null and ideas.author_id = auth.uid() and ideas.status = 'open') as viewer_can_edit
+  from public.ideas
+  where ideas.status <> 'hidden' or public.is_admin();
+$$;
+
+revoke all on function public.list_visible_ideas() from public;
+grant execute on function public.list_visible_ideas() to anon, authenticated;
 
 -- External RSVP pages are the source of truth; attendee counts are not public.
 revoke all on table public.event_registration_counts from anon, authenticated;

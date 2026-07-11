@@ -4,7 +4,7 @@
 
 Release-audit hardening for the first public template:
 
-- Removed stable anonymous visitor identifiers from public post reads.
+- Removed stable anonymous visitor identifiers and member auth UUIDs from public post reads.
 - Made external-event attendee counts private.
 - Fixed invite-capacity checks so exhausted retries fail before email delivery.
 - Aligned authentication, external-RSVP, and historical-audit documentation with the live product.
