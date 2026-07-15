@@ -411,7 +411,7 @@ describe('launch frontend contracts', () => {
     expect(form).toContain('MagicLinkSteps');
     expect(form).toContain('Send sign-in link');
     expect(form).toContain('Send account link');
-    expect(form).toContain('Send me a one-time email link. No marketing.');
+    expect(form).toContain("I agree to receive the magic link to sign in,{' '}");
     expect(form).toContain('Get an invite from a friend who’s already a member');
     expect(form).toContain('join the WhatsApp community');
     expect(form).toContain('href={communityConfig.whatsappUrl}');
@@ -429,7 +429,9 @@ describe('launch frontend contracts', () => {
     expect(composer).toContain('Sign in to finish your post');
     expect(composer).toContain('MagicLinkSteps');
     expect(composer).toContain('Send sign-in link');
-    expect(composer).toContain('Send me a one-time email link. No marketing.');
+    expect(composer).toContain("I agree to receive the magic link to sign in,{' '}");
+    expect(composer).toContain('href="/terms">Terms and Conditions</a>');
+    expect(composer).toContain('href="/privacy">Privacy Policy</a>');
     expect(composer).not.toContain('sent through Supabase');
     expect(composer).toContain('emailBusy || !emailConsent');
     expect(composer).toContain("onClick={() => setStage('form')} disabled={emailBusy}");

@@ -48,9 +48,13 @@ export default function InviteEmailForm({ code, mode }: Props) {
       </div>
       <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-braga-300/20 bg-white/[0.025] p-4 text-sm leading-6 text-braga-100">
         <input type="checkbox" className="mt-1 h-4 w-4 shrink-0 accent-limewash" checked={emailConsent} onChange={(event) => setEmailConsent(event.target.checked)} required disabled={status === 'loading' || status === 'success'} />
-        <span>Send me a one-time email link. No marketing.</span>
+        <span>
+          I agree to receive the magic link to sign in,{' '}
+          <a className="font-semibold text-limewash underline decoration-limewash/40 underline-offset-2 hover:text-white" href="/terms">Terms and Conditions</a>
+          {' '}and{' '}
+          <a className="font-semibold text-limewash underline decoration-limewash/40 underline-offset-2 hover:text-white" href="/privacy">Privacy Policy</a>.
+        </span>
       </label>
-      <p className="text-xs text-braga-300"><a className="font-semibold text-limewash hover:underline" href="/terms">Terms and Conditions</a> · <a className="font-semibold text-limewash hover:underline" href="/privacy">Privacy Policy</a></p>
       <button className="btn-primary w-full" disabled={!emailConsent || status === 'loading' || status === 'success'}>
         {status === 'loading' ? 'Sending…' : status === 'success' ? 'Email sent' : mode === 'signin' ? 'Send sign-in link' : 'Send account link'}
       </button>

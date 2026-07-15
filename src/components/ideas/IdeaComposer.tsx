@@ -245,9 +245,13 @@ export default function IdeaComposer({ tagCatalog, tagCatalogLoading, tagCatalog
               <input id="idea-email" className="input mt-2" type="email" value={email} onChange={(event) => setEmail(event.target.value)} autoComplete="email" required autoFocus />
               <label className="mt-4 flex cursor-pointer items-start gap-3 rounded-xl border border-braga-300/20 bg-white/[0.025] p-4 text-sm leading-6 text-braga-100">
                 <input type="checkbox" className="mt-1 h-4 w-4 shrink-0 accent-limewash" checked={emailConsent} onChange={(event) => setEmailConsent(event.target.checked)} required disabled={emailBusy} />
-                <span>Send me a one-time email link. No marketing.</span>
+                <span>
+                  I agree to receive the magic link to sign in,{' '}
+                  <a className="font-semibold text-limewash underline decoration-limewash/40 underline-offset-2 hover:text-white" href="/terms">Terms and Conditions</a>
+                  {' '}and{' '}
+                  <a className="font-semibold text-limewash underline decoration-limewash/40 underline-offset-2 hover:text-white" href="/privacy">Privacy Policy</a>.
+                </span>
               </label>
-              <p className="mt-3 text-xs text-braga-300"><a className="font-semibold text-limewash hover:underline" href="/terms">Terms and Conditions</a> · <a className="font-semibold text-limewash hover:underline" href="/privacy">Privacy Policy</a></p>
               <div className="mt-6 grid gap-3"><button className="btn-primary" disabled={emailBusy || !emailConsent}>{emailBusy ? 'Sending…' : 'Send sign-in link'}</button><button type="button" className="px-4 py-2 text-sm text-braga-200 hover:text-white disabled:cursor-not-allowed disabled:opacity-50" onClick={() => setStage('form')} disabled={emailBusy}>Back</button></div>
               {message && <p className="error-message mt-4" role="alert">{message}</p>}
             </form>
