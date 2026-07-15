@@ -14,6 +14,7 @@ import {
 } from '@/lib/postParticipation';
 import RipTaxonomyPicker from './RipTaxonomyPicker';
 import { communityConfig } from '@/config/community';
+import MagicLinkSteps from '@/components/auth/MagicLinkSteps';
 
 type ComposerStage = 'form' | 'email' | 'sent';
 type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
@@ -141,7 +142,7 @@ export default function IdeaComposer({ tagCatalog, tagCatalogLoading, tagCatalog
   async function sendSignInLink(event: FormSubmitEvent) {
     event.preventDefault(); setMessage('');
     if (!emailConsent) {
-      setMessage('Please agree to receive the one-time magic-link email.');
+      setMessage('Tick the box so we can send your email link.');
       return;
     }
     setEmailBusy(true);
@@ -184,7 +185,7 @@ export default function IdeaComposer({ tagCatalog, tagCatalogLoading, tagCatalog
             <div>
               <p className="text-xs font-black uppercase tracking-[0.18em] text-limewash">Community post</p>
               <h2 id="post-composer-title" className="mt-2 text-2xl font-black text-white">
-                {stage === 'form' ? 'Create a new post' : stage === 'email' ? 'Existing member sign in' : 'Check your email'}
+                {stage === 'form' ? 'Create a new post' : stage === 'email' ? 'Sign in to finish your post' : 'Check your email'}
               </h2>
             </div>
             <button type="button" className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-braga-300/25 text-braga-100 transition hover:border-limewash/70 hover:text-limewash" onClick={close} aria-label="Close post composer" disabled={status === 'saving' || emailBusy}>
@@ -238,22 +239,23 @@ export default function IdeaComposer({ tagCatalog, tagCatalogLoading, tagCatalog
 
           {stage === 'email' && (
             <form onSubmit={sendSignInLink} className="mt-6">
-              <p className="text-sm leading-6 text-braga-100">Your post is saved in this browser while we email your existing member account a one-time magic link.</p>
+              <p className="text-sm leading-6 text-braga-100">Your post is saved here.</p>
+              <MagicLinkSteps className="mt-5" />
               <label className="label mt-6 block" htmlFor="idea-email">Email address</label>
               <input id="idea-email" className="input mt-2" type="email" value={email} onChange={(event) => setEmail(event.target.value)} autoComplete="email" required autoFocus />
               <label className="mt-4 flex cursor-pointer items-start gap-3 rounded-xl border border-braga-300/20 bg-white/[0.025] p-4 text-sm leading-6 text-braga-100">
                 <input type="checkbox" className="mt-1 h-4 w-4 shrink-0 accent-limewash" checked={emailConsent} onChange={(event) => setEmailConsent(event.target.checked)} required disabled={emailBusy} />
-                <span>I agree to receive a one-time magic-link email sent through Supabase. My email address will never be used for marketing.</span>
+                <span>Send me a one-time email link. No marketing.</span>
               </label>
-              <p className="mt-3 text-xs leading-5 text-braga-300">Use of this site is subject to our <a className="font-semibold text-limewash hover:underline" href="/terms">Terms and Conditions</a>. See the <a className="font-semibold text-limewash hover:underline" href="/privacy">Privacy Policy</a> for how account data is handled.</p>
-              <div className="mt-6 grid gap-3"><button className="btn-primary" disabled={emailBusy || !emailConsent}>{emailBusy ? 'Sending…' : 'Email me the magic link'}</button><button type="button" className="px-4 py-2 text-sm text-braga-200 hover:text-white disabled:cursor-not-allowed disabled:opacity-50" onClick={() => setStage('form')} disabled={emailBusy}>Back</button></div>
+              <p className="mt-3 text-xs text-braga-300"><a className="font-semibold text-limewash hover:underline" href="/terms">Terms and Conditions</a> · <a className="font-semibold text-limewash hover:underline" href="/privacy">Privacy Policy</a></p>
+              <div className="mt-6 grid gap-3"><button className="btn-primary" disabled={emailBusy || !emailConsent}>{emailBusy ? 'Sending…' : 'Send sign-in link'}</button><button type="button" className="px-4 py-2 text-sm text-braga-200 hover:text-white disabled:cursor-not-allowed disabled:opacity-50" onClick={() => setStage('form')} disabled={emailBusy}>Back</button></div>
               {message && <p className="error-message mt-4" role="alert">{message}</p>}
             </form>
           )}
 
           {stage === 'sent' && (
             <div className="mt-6">
-              <p className="leading-7 text-braga-100">If that email belongs to a {communityConfig.name} member, open the newest magic link to sign in and return here with the post restored.</p>
+              <p className="leading-7 text-braga-100">Open the newest email from {communityConfig.name} and tap the link. Your post will be here when you return.</p>
               <button type="button" className="btn-primary mt-6 w-full" onClick={close}>Done</button>
             </div>
           )}

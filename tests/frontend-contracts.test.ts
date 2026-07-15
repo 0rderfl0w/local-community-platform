@@ -205,7 +205,7 @@ describe('launch frontend contracts', () => {
     expect(composer).toContain('No saved post was found on this browser');
     expect(composer.indexOf("if (!draft)")).toBeLessThan(composer.indexOf("setMessage('Your post is restored"));
     expect(votes).not.toContain('No account needed');
-    expect(feed).toContain('Already a member? Sign in with a magic link');
+    expect(feed).toContain('Already a member? Sign in by email');
     expect(feed).toContain('Next event:');
     expect(feed).toContain('RIP_CATEGORIES');
     expect(feed).toContain('usePostTagCatalog');
@@ -378,21 +378,31 @@ describe('launch frontend contracts', () => {
     expect(client).toContain('getBugReportVisitorId');
   });
 
-  test('existing-member sign in stays separate from invited account creation', async () => {
+  test('email-link sign in and signup stay short, explicit, and passwordless', async () => {
     const page = await read('src/pages/signin.astro');
+    const join = await read('src/pages/join/[code].astro');
     const form = await read('src/components/auth/InviteEmailForm.tsx');
+    const steps = await read('src/components/auth/MagicLinkSteps.tsx');
+    const callback = await read('src/components/auth/AuthCallback.tsx');
     const magicLink = await read('src/lib/magicLink.ts');
     const composer = await read('src/components/ideas/IdeaComposer.tsx');
     const edge = await read('supabase/functions/request-invite-magic-link/index.ts');
-    expect(page).toContain('Existing member sign in');
+    expect(page).toContain('description={`Sign in to your existing ${communityConfig.name} account with a secure email link.`}');
+    expect(join).toContain('Sign in or create your account');
     expect(page).toContain('mode="signin"');
     expect(page).not.toContain('memberInviteCode');
     expect(form).toContain("{ mode: 'invite'; code: string } | { mode: 'signin'; code?: never }");
     expect(form).toContain('requestMagicLink');
     expect(magicLink).toContain('/functions/v1/request-invite-magic-link');
-    expect(form).toContain('Email me a magic link');
-    expect(form).toContain('I agree to receive a one-time magic-link email sent through Supabase.');
-    expect(form).toContain('My email address will never be used for marketing.');
+    expect(steps).toContain('No password needed');
+    expect(steps).toContain('Enter email');
+    expect(steps).toContain('Open email');
+    expect(steps).toContain('Tap the link');
+    expect(form).toContain('MagicLinkSteps');
+    expect(form).toContain('Send sign-in link');
+    expect(form).toContain('Send account link');
+    expect(form).toContain('Send me a one-time email link. No marketing.');
+    expect(form).not.toContain('sent through Supabase');
     expect(form).toContain('emailConsent: true');
     expect(form).toContain('required');
     expect(composer).toContain('Already a member? Sign in');
@@ -402,10 +412,15 @@ describe('launch frontend contracts', () => {
     expect(composer).not.toContain('Anonymous posting is required while signed out.');
     expect(composer).toContain('href={communityConfig.whatsappUrl}');
     expect(composer).not.toContain('Create account and post');
-    expect(composer).toContain('I agree to receive a one-time magic-link email sent through Supabase.');
-    expect(composer).toContain('My email address will never be used for marketing.');
+    expect(composer).toContain('Sign in to finish your post');
+    expect(composer).toContain('MagicLinkSteps');
+    expect(composer).toContain('Send sign-in link');
+    expect(composer).toContain('Send me a one-time email link. No marketing.');
+    expect(composer).not.toContain('sent through Supabase');
     expect(composer).toContain('emailBusy || !emailConsent');
     expect(composer).toContain("onClick={() => setStage('form')} disabled={emailBusy}");
+    expect(callback).toContain('Finishing sign in…');
+    expect(callback).toContain('Send a new sign-in link');
     expect(edge).toContain("payload.context === 'signin'");
     expect(edge).toContain('create_user: false');
     expect(edge).toContain('If that email belongs to a member, a sign-in link is on its way.');

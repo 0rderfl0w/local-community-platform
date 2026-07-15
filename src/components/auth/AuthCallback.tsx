@@ -25,7 +25,7 @@ async function claimPendingInvite() {
 }
 
 export default function AuthCallback() {
-  const [message, setMessage] = useState('Confirming your session…');
+  const [message, setMessage] = useState('Finishing sign in…');
   const [failed, setFailed] = useState(false);
 
   useEffect(() => {
@@ -81,7 +81,7 @@ export default function AuthCallback() {
   return (
     <div className={failed ? 'error-message' : 'card p-6 text-braga-100'} role={failed ? 'alert' : 'status'} aria-live="polite">
       <p>{message}</p>
-      {failed && <a href="/signin" className="mt-4 inline-flex font-semibold text-limewash">Request a new magic link</a>}
+      {failed && <a href="/signin" className="mt-4 inline-flex font-semibold text-limewash">Send a new sign-in link</a>}
     </div>
   );
 }

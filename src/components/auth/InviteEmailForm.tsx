@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { FormSubmitEvent } from '@/lib/dom';
 import { requestMagicLink } from '@/lib/magicLink';
 import { communityConfig } from '@/config/community';
+import MagicLinkSteps from './MagicLinkSteps';
 
 type Props = { mode: 'invite'; code: string } | { mode: 'signin'; code?: never };
 
@@ -16,7 +17,7 @@ export default function InviteEmailForm({ code, mode }: Props) {
     setMessage('');
     if (!emailConsent) {
       setStatus('error');
-      setMessage('Please agree to receive the one-time magic-link email.');
+      setMessage('Tick the box so we can send your email link.');
       return;
     }
     setStatus('loading');
@@ -28,8 +29,8 @@ export default function InviteEmailForm({ code, mode }: Props) {
 
       setStatus('success');
       setMessage(mode === 'signin'
-        ? `If this email belongs to a ${communityConfig.name} member, the sign-in link can take a minute to arrive.`
-        : `Check your email for your ${communityConfig.name} invitation link. It can take a minute to arrive.`);
+        ? `Open the newest email from ${communityConfig.name} and tap the link to sign in. It can take a minute.`
+        : `Open the newest email from ${communityConfig.name} and tap the link to create your account. It can take a minute.`);
     } catch (caught) {
       console.error('[invite-request]', caught);
       setStatus('error');
@@ -40,23 +41,24 @@ export default function InviteEmailForm({ code, mode }: Props) {
 
   return (
     <form onSubmit={submit} className="card space-y-5 p-6" aria-busy={status === 'loading'}>
+      <MagicLinkSteps />
       <div>
         <label className="label" htmlFor="email">Email address</label>
         <input id="email" className="input mt-2" type="email" value={email} placeholder="you@example.com" onChange={(event) => setEmail(event.target.value)} autoComplete="email" required disabled={status === 'success'} />
       </div>
       <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-braga-300/20 bg-white/[0.025] p-4 text-sm leading-6 text-braga-100">
         <input type="checkbox" className="mt-1 h-4 w-4 shrink-0 accent-limewash" checked={emailConsent} onChange={(event) => setEmailConsent(event.target.checked)} required disabled={status === 'loading' || status === 'success'} />
-        <span>I agree to receive a one-time magic-link email sent through Supabase. My email address will never be used for marketing.</span>
+        <span>Send me a one-time email link. No marketing.</span>
       </label>
-      <p className="text-xs leading-5 text-braga-300">Use of this site is subject to our <a className="font-semibold text-limewash hover:underline" href="/terms">Terms and Conditions</a>. See the <a className="font-semibold text-limewash hover:underline" href="/privacy">Privacy Policy</a> for how account data is handled.</p>
+      <p className="text-xs text-braga-300"><a className="font-semibold text-limewash hover:underline" href="/terms">Terms and Conditions</a> · <a className="font-semibold text-limewash hover:underline" href="/privacy">Privacy Policy</a></p>
       <button className="btn-primary w-full" disabled={!emailConsent || status === 'loading' || status === 'success'}>
-        {status === 'loading' ? 'Sending link…' : status === 'success' ? 'Link sent' : 'Email me a magic link'}
+        {status === 'loading' ? 'Sending…' : status === 'success' ? 'Email sent' : mode === 'signin' ? 'Send sign-in link' : 'Send account link'}
       </button>
       {message && <p className={status === 'error' ? 'error-message' : 'status-message'} role={status === 'error' ? 'alert' : 'status'} aria-live="polite">{message}</p>}
       <p className="text-xs leading-5 text-braga-200">
         {mode === 'signin'
-          ? 'This form signs in existing members only. New members need an invitation URL shared by a member or organizer.'
-          : 'This invitation creates one new member account. Existing members can also use it to sign in without consuming the invitation.'}
+          ? 'New here? You need an invite from a member or organizer.'
+          : 'This invite creates one member account.'}
       </p>
     </form>
   );

@@ -104,7 +104,7 @@ const viewLabels: Record<PostFeedView, string> = {
 function participationCopy(access: BookmarkAccess) {
   if (access === 'active') return null;
   if (access === 'inactive') return 'This account is signed in, but its community membership is not active. Contact an organizer if that looks wrong.';
-  return <>You can post and vote without an account. Want your posts tied to your profile, editable, and bookmarkable? <a className="font-semibold text-limewash hover:underline" href="/signin">Already a member? Sign in with a magic link →</a></>;
+  return <>You can post and vote without an account. Want your posts tied to your profile, editable, and bookmarkable? <a className="font-semibold text-limewash hover:underline" href="/signin">Already a member? Sign in by email →</a></>;
 }
 
 export default function IdeaFeed({ initialView = 'all', showIntro = true, showViewTabs = true, showFilters = true, layout = 'default' }: Props) {

@@ -15,7 +15,6 @@ if (!validCode) Astro.response.status = 404;
       <>
         <p class="text-sm font-bold uppercase tracking-[0.2em] text-limewash">Private invite</p>
         <h1 class="mt-4 text-4xl font-bold">Sign in or create your account</h1>
-        <p class="mt-4 text-braga-100">It is the same passwordless process. Enter your email and we’ll send a one-time magic link.</p>
         <div class="mt-8">
           <InviteEmailForm code={code} mode="invite" client:load />
         </div>
