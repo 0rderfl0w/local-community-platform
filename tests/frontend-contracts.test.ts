@@ -384,6 +384,7 @@ describe('launch frontend contracts', () => {
     const tabs = await read('src/components/auth/SignInTabs.tsx');
     const form = await read('src/components/auth/InviteEmailForm.tsx');
     const steps = await read('src/components/auth/MagicLinkSteps.tsx');
+    const retry = await read('src/components/auth/useRetryCountdown.ts');
     const callback = await read('src/components/auth/AuthCallback.tsx');
     const magicLink = await read('src/lib/magicLink.ts');
     const composer = await read('src/components/ideas/IdeaComposer.tsx');
@@ -411,6 +412,13 @@ describe('launch frontend contracts', () => {
     expect(form).toContain('MagicLinkSteps');
     expect(form).toContain('Send sign-in link');
     expect(form).toContain('Send account link');
+    expect(form).toContain('useRetryCountdown');
+    expect(form).toContain('startRetryCountdown();');
+    expect(form).toContain('Send magic link again');
+    expect(form).toContain('`Send again in ${retrySeconds}s`');
+    expect(form).toContain("status === 'success' && retrySeconds > 0");
+    expect(retry).toContain('MAGIC_LINK_RETRY_SECONDS = 60');
+    expect(retry).toContain('Math.ceil((retryAt - now) / 1000)');
     expect(form).toContain("I agree to receive the magic link to sign in,{' '}");
     expect(form).toContain('Get an invite from a friend who’s already a member');
     expect(form).toContain('join the WhatsApp community');
@@ -429,6 +437,10 @@ describe('launch frontend contracts', () => {
     expect(composer).toContain('Sign in to finish your post');
     expect(composer).toContain('MagicLinkSteps');
     expect(composer).toContain('Send sign-in link');
+    expect(composer).toContain('useRetryCountdown');
+    expect(composer).toContain('requestComposerSignInLink');
+    expect(composer).toContain('Send magic link again');
+    expect(composer).toContain('`Send again in ${retrySeconds}s`');
     expect(composer).toContain("I agree to receive the magic link to sign in,{' '}");
     expect(composer).toContain('href="/terms">Terms and Conditions</a>');
     expect(composer).toContain('href="/privacy">Privacy Policy</a>');

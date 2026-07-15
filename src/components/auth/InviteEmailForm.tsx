@@ -3,6 +3,7 @@ import type { FormSubmitEvent } from '@/lib/dom';
 import { requestMagicLink } from '@/lib/magicLink';
 import { communityConfig } from '@/config/community';
 import MagicLinkSteps from './MagicLinkSteps';
+import { useRetryCountdown } from './useRetryCountdown';
 
 type Props = { mode: 'invite'; code: string } | { mode: 'signin'; code?: never };
 
@@ -11,6 +12,7 @@ export default function InviteEmailForm({ code, mode }: Props) {
   const [emailConsent, setEmailConsent] = useState(false);
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [message, setMessage] = useState('');
+  const { retrySeconds, startRetryCountdown } = useRetryCountdown();
 
   async function submit(event: FormSubmitEvent) {
     event.preventDefault();
@@ -28,6 +30,7 @@ export default function InviteEmailForm({ code, mode }: Props) {
         : { email, code, emailConsent: true });
 
       setStatus('success');
+      startRetryCountdown();
       setMessage(mode === 'signin'
         ? `Open the newest email from ${communityConfig.name} and tap the link to sign in. It can take a minute.`
         : `Open the newest email from ${communityConfig.name} and tap the link to create your account. It can take a minute.`);
@@ -55,8 +58,14 @@ export default function InviteEmailForm({ code, mode }: Props) {
           <a className="font-semibold text-limewash underline decoration-limewash/40 underline-offset-2 hover:text-white" href="/privacy">Privacy Policy</a>.
         </span>
       </label>
-      <button className="btn-primary w-full" disabled={!emailConsent || status === 'loading' || status === 'success'}>
-        {status === 'loading' ? 'Sending…' : status === 'success' ? 'Email sent' : mode === 'signin' ? 'Send sign-in link' : 'Send account link'}
+      <button className="btn-primary w-full" type="submit" disabled={!emailConsent || status === 'loading' || (status === 'success' && retrySeconds > 0)}>
+        {status === 'loading'
+          ? 'Sending…'
+          : status === 'success' && retrySeconds > 0
+            ? `Send again in ${retrySeconds}s`
+            : status === 'success'
+              ? 'Send magic link again'
+              : mode === 'signin' ? 'Send sign-in link' : 'Send account link'}
       </button>
       {message && <p className={status === 'error' ? 'error-message' : 'status-message'} role={status === 'error' ? 'alert' : 'status'} aria-live="polite">{message}</p>}
       {mode === 'signin' ? (
