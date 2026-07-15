@@ -189,7 +189,6 @@ describe('launch frontend contracts', () => {
     expect(composer).toContain('anonymousChoice?.accountUserId === accountUserId');
     expect(composer).not.toContain('previousSignedIn');
     expect(composer).toContain('disabled={!signedIn || !anonymousPostsAllowed || settingsLoading}');
-    expect(composer).toContain('create an account');
     expect(composer).toContain('Post with my profile');
     expect(composer).toContain('Create a new post');
     expect(composer).toContain('showModal()');
@@ -327,7 +326,8 @@ describe('launch frontend contracts', () => {
     const authStatus = await read('src/components/auth/AuthStatus.tsx');
     const config = await read('src/config/community.ts');
     const footer = await read('src/components/Footer.astro');
-    expect(home).toContain('Join WhatsApp Community');
+    expect(home).toContain('See Posts');
+    expect(home).toContain('Join the WhatsApp Community');
     expect(home).toContain('communityConfig.whatsappUrl');
     expect(config).toContain('https://chat.whatsapp.com/GwhqmjtwcPT4vVmQmqqIRW');
     expect(config).toContain('https://github.com/richkapp/local-community-platform');
@@ -336,7 +336,7 @@ describe('launch frontend contracts', () => {
     expect(home).toContain('communityConfig.tagline');
     expect(home).toContain('communityConfig.description');
     expect(home).toContain('communityConfig.home');
-    expect(home).toContain('Browse Posts');
+    expect(home).not.toContain('class="btn-secondary">Browse Posts');
     expect(config).toContain('Curious about AI? Come meet your people.');
     expect(home).toContain('WhatsApp is the conversation. This site is the memory.');
     expect(home).toContain('Your name, attached to what you share.');
@@ -396,7 +396,10 @@ describe('launch frontend contracts', () => {
     expect(form).toContain('emailConsent: true');
     expect(form).toContain('required');
     expect(composer).toContain('Already a member? Sign in');
-    expect(composer).toContain('create an account</a> with a member invitation');
+    expect(composer).toContain('Membership is invite-only.');
+    expect(composer).toContain('Join the WhatsApp community');
+    expect(composer).toContain('ask someone you know who’s already a member for an invite');
+    expect(composer).not.toContain('Anonymous posting is required while signed out.');
     expect(composer).toContain('href={communityConfig.whatsappUrl}');
     expect(composer).not.toContain('Create account and post');
     expect(composer).toContain('I agree to receive a one-time magic-link email sent through Supabase.');

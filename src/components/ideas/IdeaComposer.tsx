@@ -219,7 +219,7 @@ export default function IdeaComposer({ tagCatalog, tagCatalogLoading, tagCatalog
                   Post anonymously
                 </label>
                 {!signedIn && participationReady && anonymousPostsAllowed && signedOutPostsAllowed && <p className="mt-2 text-xs leading-5 text-braga-300">
-                  Anonymous posting is required while signed out. <button type="button" className="font-bold text-limewash hover:underline" onClick={startSignInFlow}>Sign in</button> or <a className="font-bold text-limewash hover:underline" href={communityConfig.whatsappUrl} target="_blank" rel="noreferrer">create an account</a> with a member invitation to share this in your name.
+                  Membership is invite-only. <a className="font-bold text-limewash hover:underline" href={communityConfig.whatsappUrl} target="_blank" rel="noreferrer noopener">Join the WhatsApp community</a> or ask someone you know who’s already a member for an invite. <button type="button" className="font-bold text-limewash hover:underline" onClick={startSignInFlow}>Already a member? Sign in</button>.
                 </p>}
                 {!signedIn && participationReady && !signedOutPostsAllowed && <p className="mt-2 text-xs leading-5 text-amber-100">Posting while signed out is disabled. Sign in to share this post.</p>}
                 {!signedIn && participationReady && signedOutPostsAllowed && !anonymousPostsAllowed && <p className="mt-2 text-xs leading-5 text-amber-100">Anonymous posting is disabled. Sign in to share this post with your profile.</p>}
