@@ -55,11 +55,16 @@ export default function InviteEmailForm({ code, mode }: Props) {
         {status === 'loading' ? 'Sending…' : status === 'success' ? 'Email sent' : mode === 'signin' ? 'Send sign-in link' : 'Send account link'}
       </button>
       {message && <p className={status === 'error' ? 'error-message' : 'status-message'} role={status === 'error' ? 'alert' : 'status'} aria-live="polite">{message}</p>}
-      <p className="text-xs leading-5 text-braga-200">
-        {mode === 'signin'
-          ? 'New here? You need an invite from a member or organizer.'
-          : 'This invite creates one member account.'}
-      </p>
+      {mode === 'signin' ? (
+        <aside className="rounded-xl border border-limewash/35 bg-limewash/[0.08] p-4">
+          <p className="text-base font-black text-white">New here?</p>
+          <p className="mt-1 text-sm leading-6 text-braga-100">
+            Get an invite from a friend who’s already a member, or <a className="font-bold text-limewash underline decoration-limewash/40 underline-offset-4 hover:decoration-limewash" href={communityConfig.whatsappUrl} target="_blank" rel="noreferrer noopener">join the WhatsApp community</a>.
+          </p>
+        </aside>
+      ) : (
+        <p className="text-xs leading-5 text-braga-200">This invite creates one member account.</p>
+      )}
     </form>
   );
 }

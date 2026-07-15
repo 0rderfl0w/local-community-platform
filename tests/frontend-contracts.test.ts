@@ -402,6 +402,10 @@ describe('launch frontend contracts', () => {
     expect(form).toContain('Send sign-in link');
     expect(form).toContain('Send account link');
     expect(form).toContain('Send me a one-time email link. No marketing.');
+    expect(form).toContain('Get an invite from a friend who’s already a member');
+    expect(form).toContain('join the WhatsApp community');
+    expect(form).toContain('href={communityConfig.whatsappUrl}');
+    expect(form).toContain('border-limewash/35 bg-limewash/[0.08]');
     expect(form).not.toContain('sent through Supabase');
     expect(form).toContain('emailConsent: true');
     expect(form).toContain('required');
