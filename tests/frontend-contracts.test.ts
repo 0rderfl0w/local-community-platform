@@ -381,16 +381,26 @@ describe('launch frontend contracts', () => {
   test('email-link sign in and signup stay short, explicit, and passwordless', async () => {
     const page = await read('src/pages/signin.astro');
     const join = await read('src/pages/join/[code].astro');
+    const tabs = await read('src/components/auth/SignInTabs.tsx');
     const form = await read('src/components/auth/InviteEmailForm.tsx');
     const steps = await read('src/components/auth/MagicLinkSteps.tsx');
     const callback = await read('src/components/auth/AuthCallback.tsx');
     const magicLink = await read('src/lib/magicLink.ts');
     const composer = await read('src/components/ideas/IdeaComposer.tsx');
     const edge = await read('supabase/functions/request-invite-magic-link/index.ts');
-    expect(page).toContain('description={`Sign in to your existing ${communityConfig.name} account with a secure email link.`}');
+    expect(page).toContain('description={`Sign in to ${communityConfig.name} or get a private invitation to join.`}');
     expect(join).toContain('Sign in or create your account');
-    expect(page).toContain('mode="signin"');
+    expect(page).toContain('<SignInTabs client:load />');
     expect(page).not.toContain('memberInviteCode');
+    expect(tabs).toContain("{ id: 'signin', label: 'Sign In' }");
+    expect(tabs).toContain("{ id: 'signup', label: 'Sign Up' }");
+    expect(tabs).toContain('role="tablist"');
+    expect(tabs).toContain('role="tabpanel"');
+    expect(tabs).toContain('<InviteEmailForm mode="signin" />');
+    expect(tabs).toContain('Join the community');
+    expect(tabs).toContain('Ask a friend');
+    expect(tabs).toContain('href={communityConfig.whatsappUrl}');
+    expect(tabs).toContain("['ArrowLeft', 'ArrowRight', 'Home', 'End']");
     expect(form).toContain("{ mode: 'invite'; code: string } | { mode: 'signin'; code?: never }");
     expect(form).toContain('requestMagicLink');
     expect(magicLink).toContain('/functions/v1/request-invite-magic-link');
