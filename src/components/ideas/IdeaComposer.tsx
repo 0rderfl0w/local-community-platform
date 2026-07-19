@@ -57,9 +57,11 @@ export default function IdeaComposer({ tagCatalog, tagCatalogLoading, tagCatalog
       setCategory(draft.category);
       setTags(draft.tags);
     }
-    if (new URL(window.location.href).searchParams.get('restoreIdea') !== '1') return;
+    const currentUrl = new URL(window.location.href);
+    if (currentUrl.searchParams.get('restoreIdea') !== '1') return;
 
-    window.history.replaceState(window.history.state, document.title, '/posts');
+    currentUrl.searchParams.delete('restoreIdea');
+    window.history.replaceState(window.history.state, document.title, `${currentUrl.pathname}${currentUrl.search}${currentUrl.hash}`);
     if (!draft) {
       setMessage('No saved post was found on this browser. Start a new post when you are ready.');
       return;

@@ -530,7 +530,7 @@ describe('launch frontend contracts', () => {
     expect(hub).toContain("navigate(url.href, { history: 'push' })");
     expect(hub).toContain('sync();');
     expect(hub).toContain('IdeaFeed');
-    expect(feed).toContain('useState<PostFeedView>(initialView)');
+    expect(feed).toContain('useState<PostFeedView>(initialFilters.view)');
     expect(feed).toContain('My posts');
     expect(feed).toContain('My bookmarks');
     expect(feedMigration).toContain("'viewer_is_author'");
@@ -566,13 +566,29 @@ describe('launch frontend contracts', () => {
     expect(form).toContain('AvatarUploader');
     expect(form).not.toContain('Avatar image URL');
     expect(form).not.toContain('id="avatar_url"');
-    expect(uploader).toContain('Maximum 2 MB');
+    expect(uploader).toContain('AVATAR_SOURCE_MAX_LABEL');
     expect(uploader).toContain('Replace photo');
     expect(uploader).toContain('Remove');
     expect(uploader).toContain('accept="image/jpeg,image/png,image/webp"');
     expect(avatar).toContain('AVATAR_OUTPUT_SIZE = 384');
     expect(avatar).toContain("contentType: 'image/webp'");
     expect(avatar).toContain("cacheControl: '3600'");
+  });
+
+  test('post detail returns to the exact filtered posts view', async () => {
+    const postsPage = await read('src/pages/posts.astro');
+    const feed = await read('src/components/ideas/IdeaFeed.tsx');
+    const detail = await read('src/components/ideas/IdeaDetail.tsx');
+    const navigation = await read('src/lib/postFeedNavigation.ts');
+
+    expect(postsPage).toContain('persistFilters');
+    expect(feed).toContain('buildPostFeedPath');
+    expect(feed).toContain('POSTS_RETURN_STORAGE_KEY');
+    expect(feed).toContain("view !== 'all' && libraryAccess === 'signed-out'");
+    expect(feed).toContain("view !== 'all' && libraryAccess === 'inactive'");
+    expect(detail).toContain('Back to posts');
+    expect(detail).toContain('safePostFeedPath');
+    expect(navigation).toContain("'/posts'");
   });
 
   test('member deletion cleans up a native avatar before removing the account', async () => {

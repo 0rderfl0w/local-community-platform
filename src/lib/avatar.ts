@@ -2,10 +2,12 @@ import { supabase } from './supabase';
 import { verifiedProfileIdentity } from './profileIdentity';
 
 export const AVATAR_BUCKET = 'avatars';
-export const AVATAR_SOURCE_MAX_BYTES = 2 * 1024 * 1024;
+export const AVATAR_SOURCE_MAX_MEBIBYTES = 10;
+export const AVATAR_SOURCE_MAX_LABEL = `${AVATAR_SOURCE_MAX_MEBIBYTES} MB`;
+export const AVATAR_SOURCE_MAX_BYTES = AVATAR_SOURCE_MAX_MEBIBYTES * 1024 * 1024;
 export const AVATAR_OUTPUT_MAX_BYTES = 256 * 1024;
 export const AVATAR_SOURCE_MAX_DIMENSION = 12_000;
-export const AVATAR_SOURCE_MAX_PIXELS = 50_000_000;
+export const AVATAR_SOURCE_MAX_PIXELS = 25_000_000;
 export const AVATAR_OUTPUT_SIZE = 384;
 
 const supportedSourceTypes = new Set(['image/jpeg', 'image/png', 'image/webp']);
@@ -35,7 +37,7 @@ export function validateAvatarFile(file: Pick<File, 'size' | 'type'>) {
     throw new Error('Choose a JPEG, PNG, or WebP image.');
   }
   if (file.size > AVATAR_SOURCE_MAX_BYTES) {
-    throw new Error('Choose an image that is 2 MB or smaller.');
+    throw new Error(`Choose an image that is ${AVATAR_SOURCE_MAX_LABEL} or smaller.`);
   }
 }
 
@@ -44,7 +46,7 @@ export function calculateSquareCrop(width: number, height: number): SquareCrop {
     throw new Error('Choose an image with valid dimensions.');
   }
   if (width > AVATAR_SOURCE_MAX_DIMENSION || height > AVATAR_SOURCE_MAX_DIMENSION || width * height > AVATAR_SOURCE_MAX_PIXELS) {
-    throw new Error('Choose an image no larger than 50 megapixels.');
+    throw new Error('Choose an image no larger than 25 megapixels.');
   }
   const sourceSize = Math.min(width, height);
   return {
@@ -129,8 +131,9 @@ function firstAvatarState(data: unknown): AvatarState {
   };
 }
 
-export async function uploadMyAvatar(expectedUserId: string, file: File) {
+export async function uploadMyAvatar(expectedUserId: string, file: File, onPrepared?: (compressed: Blob) => void) {
   const compressed = await prepareAvatarImage(file);
+  onPrepared?.(compressed);
   await verifyCurrentIdentity(expectedUserId);
 
   const { data: reservedPath, error: reserveError } = await supabase.rpc('reserve_my_avatar_path');

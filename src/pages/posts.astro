@@ -10,7 +10,7 @@ import { communityConfig, communityPageTitle } from '../config/community';
       <p class="mt-4 text-slate-300">Ideas, resources, and perspectives from the {communityConfig.name} community. Upvotes only.</p>
     </header>
     <div class="mt-8">
-      <IdeaFeed layout="sidebar" client:load />
+      <IdeaFeed layout="sidebar" persistFilters client:load />
     </div>
   </section>
 </BaseLayout>

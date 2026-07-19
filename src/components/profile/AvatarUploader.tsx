@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { LuCamera, LuTrash2 } from 'react-icons/lu';
 import type { AvatarState } from '@/lib/avatar';
-import { removeMyAvatar, uploadMyAvatar, validateAvatarFile } from '@/lib/avatar';
+import { AVATAR_SOURCE_MAX_LABEL, removeMyAvatar, uploadMyAvatar, validateAvatarFile } from '@/lib/avatar';
 import { toUserMessage } from '@/lib/errors';
 import AvatarImage from './AvatarImage';
 
@@ -80,12 +80,13 @@ export default function AvatarUploader({ expectedUserId, identityGeneration, pro
 
     const operation = operationRef.current + 1;
     operationRef.current = operation;
-    const localPreview = URL.createObjectURL(file);
-    replacePreview(localPreview);
     setBusy('upload');
 
     try {
-      const avatar = await operations.upload(expectedUserId, file);
+      const avatar = await operations.upload(expectedUserId, file, (compressed) => {
+        if (!mountedRef.current || operationRef.current !== operation) return;
+        replacePreview(URL.createObjectURL(compressed));
+      });
       if (!mountedRef.current || operationRef.current !== operation) return;
       onAvatarChange(expectedUserId, identityGeneration, avatar);
       setMessage('Photo updated.');
@@ -137,7 +138,7 @@ export default function AvatarUploader({ expectedUserId, identityGeneration, pro
         />
         <div className="min-w-0 flex-1">
           <h2 className="text-base font-semibold text-white">Profile photo</h2>
-          <p className="mt-1 text-sm leading-6 text-braga-100">JPEG, PNG, or WebP. Maximum 2 MB. We crop it square and compress it before upload.</p>
+          <p className="mt-1 text-sm leading-6 text-braga-100">JPEG, PNG, or WebP. Maximum {AVATAR_SOURCE_MAX_LABEL}. We crop it square and compress it before upload.</p>
           <p className="mt-1 text-xs leading-5 text-braga-200">Uploaded photos are public files and appear anywhere your public member profile is shown.</p>
           <div className="mt-4 flex flex-wrap gap-3">
             <label className={`btn-secondary inline-flex cursor-pointer items-center gap-2 ${busy ? 'pointer-events-none opacity-60' : ''}`}>

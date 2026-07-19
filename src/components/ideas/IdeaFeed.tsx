@@ -6,7 +6,8 @@ import { toUserMessage } from '@/lib/errors';
 import { listPostFeed, updateOwnIdea } from '@/lib/ideas';
 import { RIP_CATEGORIES, ripCategoryLabel, ripTagLabel } from '@/lib/rips';
 import { deleteIdea, updateIdeaStatus } from '@/lib/admin';
-import { ideaMatchesMember, rankPostingMembers, scopeIdeasToPostView, type PostFeedView } from '@/lib/postMemberFilters';
+import { ideaMatchesMember, POST_FEED_VIEWS, rankPostingMembers, scopeIdeasToPostView, type PostFeedView } from '@/lib/postMemberFilters';
+import { buildPostFeedPath, mergePostFeedFilters, parsePostFeedFilters, POSTS_RETURN_STORAGE_KEY } from '@/lib/postFeedNavigation';
 import { formatCommunityDate } from '@/lib/communityDate';
 
 import type { Event, Idea, PostTagCatalogItem, RipCategory, RipTag } from '@/lib/types';
@@ -28,6 +29,7 @@ type Props = {
   showViewTabs?: boolean;
   showFilters?: boolean;
   layout?: 'default' | 'sidebar';
+  persistFilters?: boolean;
 };
 
 const filterPill = 'min-h-11 rounded-full border px-3 py-2 text-xs font-bold transition focus:outline-none focus:ring-2 focus:ring-limewash/70';
@@ -107,17 +109,20 @@ function participationCopy(access: BookmarkAccess) {
   return <>You can post and vote without an account. Want your posts tied to your profile, editable, and bookmarkable? <a className="font-semibold text-limewash hover:underline" href="/signin">Already a member? Sign in by email →</a></>;
 }
 
-export default function IdeaFeed({ initialView = 'all', showIntro = true, showViewTabs = true, showFilters = true, layout = 'default' }: Props) {
+export default function IdeaFeed({ initialView = 'all', showIntro = true, showViewTabs = true, showFilters = true, layout = 'default', persistFilters = false }: Props) {
   const { tags: tagCatalog, loading: tagCatalogLoading, error: tagCatalogError } = usePostTagCatalog();
+  const [initialFilters] = useState(() => persistFilters && typeof window !== 'undefined'
+    ? parsePostFeedFilters(window.location.search, initialView)
+    : { view: initialView, category: 'all' as const, tags: [], member: null });
   const [ideas, setIdeas] = useState<Idea[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
   const [libraryAccess, setLibraryAccess] = useState<BookmarkAccess>('signed-out');
   const [nextEvent, setNextEvent] = useState<Event | null>(null);
   const [editing, setEditing] = useState<Idea | null>(null);
-  const [view, setView] = useState<PostFeedView>(initialView);
-  const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>('all');
-  const [selectedTags, setSelectedTags] = useState<RipTag[]>([]);
-  const [selectedMemberHandle, setSelectedMemberHandle] = useState<string | null>(null);
+  const [view, setView] = useState<PostFeedView>(initialFilters.view);
+  const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>(initialFilters.category);
+  const [selectedTags, setSelectedTags] = useState<RipTag[]>(initialFilters.tags);
+  const [selectedMemberHandle, setSelectedMemberHandle] = useState<string | null>(initialFilters.member);
   const [membersExpanded, setMembersExpanded] = useState(false);
   const [filtersExpanded, setFiltersExpanded] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -170,10 +175,28 @@ export default function IdeaFeed({ initialView = 'all', showIntro = true, showVi
   const memberOptions = useMemo(() => rankPostingMembers(viewScopedIdeas), [viewScopedIdeas]);
 
   useEffect(() => {
-    if (selectedMemberHandle && !memberOptions.some((member) => member.handle === selectedMemberHandle)) {
+    if (!loading && selectedMemberHandle && !memberOptions.some((member) => member.handle === selectedMemberHandle)) {
       setSelectedMemberHandle(null);
     }
-  }, [memberOptions, selectedMemberHandle]);
+  }, [loading, memberOptions, selectedMemberHandle]);
+
+  useEffect(() => {
+    if (!persistFilters) return;
+    const state = { view, category: categoryFilter, tags: selectedTags, member: selectedMemberHandle };
+    const returnPath = buildPostFeedPath(state);
+    try {
+      window.sessionStorage.setItem(POSTS_RETURN_STORAGE_KEY, returnPath);
+    } catch {
+      // URL state still preserves the filters when storage is unavailable.
+    }
+
+    const mergedSearch = mergePostFeedFilters(window.location.search, state);
+    const nextLocation = `${window.location.pathname}${mergedSearch}${window.location.hash}`;
+    const currentLocation = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+    if (nextLocation !== currentLocation) {
+      window.history.replaceState(window.history.state, document.title, nextLocation);
+    }
+  }, [categoryFilter, persistFilters, selectedMemberHandle, selectedTags, view]);
 
   const filteredIdeas = useMemo(() => {
     const matching = viewScopedIdeas.filter((idea) =>
@@ -230,8 +253,8 @@ export default function IdeaFeed({ initialView = 'all', showIntro = true, showVi
   }
   if (loading) return <p className="card p-6 text-braga-100" role="status">Loading posts…</p>;
   if (error) return <p className="error-message" role="alert">{error}</p>;
-  if (initialView !== 'all' && libraryAccess === 'signed-out') return <AuthRequired title={initialView === 'mine' ? 'Your posts' : 'Your bookmarks'} message="Sign in with your member account to see your personal post library." />;
-  if (initialView !== 'all' && libraryAccess === 'inactive') return <div className="card p-6"><h2 className="text-xl font-bold text-white">Member access unavailable</h2><p className="mt-2 text-sm leading-6 text-braga-100">This account is signed in, but its community membership is not active. Contact an organizer if that looks wrong.</p></div>;
+  if (view !== 'all' && libraryAccess === 'signed-out') return <AuthRequired title={view === 'mine' ? 'Your posts' : 'Your bookmarks'} message="Sign in with your member account to see your personal post library." />;
+  if (view !== 'all' && libraryAccess === 'inactive') return <div className="card p-6"><h2 className="text-xl font-bold text-white">Member access unavailable</h2><p className="mt-2 text-sm leading-6 text-braga-100">This account is signed in, but its community membership is not active. Contact an organizer if that looks wrong.</p></div>;
 
   const introCopy = participationCopy(libraryAccess);
   const intro = showIntro && (introCopy || nextEvent) && (
@@ -246,7 +269,7 @@ export default function IdeaFeed({ initialView = 'all', showIntro = true, showVi
         <h2 className="text-lg font-black text-white">Filters</h2>
       </div>
       {showViewTabs && libraryAccess === 'active' && <nav className="grid gap-2" aria-label="Post library views">
-        {(Object.keys(viewLabels) as PostFeedView[]).map((item) => <button key={item} type="button" className={`${filterPill} text-left ${view === item ? 'border-limewash bg-limewash text-ink-950' : 'border-braga-300/30 text-braga-100 hover:border-limewash/60'}`} aria-pressed={view === item} onClick={() => chooseView(item)}>{viewLabels[item]}</button>)}
+        {POST_FEED_VIEWS.map((item) => <button key={item} type="button" className={`${filterPill} text-left ${view === item ? 'border-limewash bg-limewash text-ink-950' : 'border-braga-300/30 text-braga-100 hover:border-limewash/60'}`} aria-pressed={view === item} onClick={() => chooseView(item)}>{viewLabels[item]}</button>)}
       </nav>}
       {showFilters && <>
         <div>

@@ -8,15 +8,15 @@ function fakeFile(type: string, size: number) {
 }
 
 describe('native avatar preparation', () => {
-  test('accepts supported source images at the 2 MB boundary', () => {
+  test('accepts supported source images at the 10 MB boundary', () => {
     for (const type of ['image/jpeg', 'image/png', 'image/webp']) {
-      expect(() => validateAvatarFile(fakeFile(type, 2 * mebibyte))).not.toThrow();
+      expect(() => validateAvatarFile(fakeFile(type, 10 * mebibyte))).not.toThrow();
     }
   });
 
   test('rejects unsupported or oversized source images', () => {
     expect(() => validateAvatarFile(fakeFile('image/svg+xml', 1000))).toThrow('JPEG, PNG, or WebP');
-    expect(() => validateAvatarFile(fakeFile('image/png', 2 * mebibyte + 1))).toThrow('2 MB or smaller');
+    expect(() => validateAvatarFile(fakeFile('image/png', 10 * mebibyte + 1))).toThrow('10 MB or smaller');
   });
 
   test('centers landscape and portrait crops before resizing', () => {
@@ -31,7 +31,7 @@ describe('native avatar preparation', () => {
   });
 
   test('rejects pathological image dimensions before drawing to canvas', () => {
-    expect(() => calculateSquareCrop(12_001, 100)).toThrow('50 megapixels');
-    expect(() => calculateSquareCrop(10_000, 10_000)).toThrow('50 megapixels');
+    expect(() => calculateSquareCrop(12_001, 100)).toThrow('25 megapixels');
+    expect(() => calculateSquareCrop(5_001, 5_000)).toThrow('25 megapixels');
   });
 });
