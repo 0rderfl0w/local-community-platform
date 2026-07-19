@@ -9,6 +9,7 @@ This guide creates an independent installation for one local community. It does 
 - A GitHub account
 - A Supabase project
 - A Vercel project
+- A transactional SMTP account for production authentication email
 - A Resend account if bug-report email notifications are enabled; a verified domain is optional for own-address testing mode and required for branded sending or other recipients
 - Supabase CLI access through `npx supabase`
 
@@ -38,6 +39,8 @@ npx supabase db push
 ```
 
 The migration chain under `supabase/migrations/` is the source of truth. Do not recreate policies manually in the dashboard.
+
+Before sending production invitations, open **Authentication → Emails → SMTP Settings** in Supabase and configure your transactional SMTP provider. The built-in mailer is for testing only, is best-effort, and is limited to two messages per hour. Set a suitable email limit under **Authentication → Rate Limits**, then verify one controlled existing-member delivery. Do not store SMTP credentials in the repository.
 
 For local sample data only:
 

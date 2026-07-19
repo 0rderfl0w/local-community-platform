@@ -388,6 +388,7 @@ describe('launch frontend contracts', () => {
     const callback = await read('src/components/auth/AuthCallback.tsx');
     const magicLink = await read('src/lib/magicLink.ts');
     const composer = await read('src/components/ideas/IdeaComposer.tsx');
+    const composerStatus = await read('src/components/ideas/ComposerMagicLinkStatus.tsx');
     const edge = await read('supabase/functions/request-invite-magic-link/index.ts');
     expect(page).toContain('description={`Sign in to ${communityConfig.name} or get a private invitation to join.`}');
     expect(join).toContain('You’re invited');
@@ -407,6 +408,8 @@ describe('launch frontend contracts', () => {
     expect(tabs).toContain("['ArrowLeft', 'ArrowRight', 'Home', 'End']");
     expect(form).toContain("{ mode: 'invite'; code: string } | { mode: 'signin'; code?: never }");
     expect(form).toContain('requestMagicLink');
+    expect(form).toContain('const response = await requestMagicLink');
+    expect(form).toContain("response.message || 'Request received.");
     expect(magicLink).toContain('/functions/v1/request-invite-magic-link');
     expect(steps).toContain('No password needed');
     expect(steps).toContain('Enter email');
@@ -444,8 +447,14 @@ describe('launch frontend contracts', () => {
     expect(composer).toContain('Send sign-in link');
     expect(composer).toContain('useRetryCountdown');
     expect(composer).toContain('requestComposerSignInLink');
-    expect(composer).toContain('Send magic link again');
-    expect(composer).toContain('`Send again in ${retrySeconds}s`');
+    expect(composer).toContain('const responseMessage = await requestIdeaSignIn(email);');
+    expect(composer).toContain('setMessage(responseMessage);');
+    expect(composer).toContain("const [emailError, setEmailError] = useState('');");
+    expect(composer).toContain('error={emailError}');
+    expect(composerStatus).toContain('role="alert">{error}');
+    expect(composer).toContain("'Request received'");
+    expect(composerStatus).toContain('Send magic link again');
+    expect(composerStatus).toContain('`Send again in ${retrySeconds}s`');
     expect(composer).toContain("I agree to receive the magic link to sign in,{' '}");
     expect(composer).toContain('href="/terms">Terms and Conditions</a>');
     expect(composer).toContain('href="/privacy">Privacy Policy</a>');
@@ -456,7 +465,10 @@ describe('launch frontend contracts', () => {
     expect(callback).toContain('Send a new sign-in link');
     expect(edge).toContain("payload.context === 'signin'");
     expect(edge).toContain('create_user: false');
-    expect(edge).toContain('If that email belongs to a member, a sign-in link is on its way.');
+    expect(edge).toContain('message: maskedSigninMessage');
+    expect(edge).toContain('createUpstreamError(body, response.status)');
+    expect(edge).toContain('publicInviteDeliveryError(caught)');
+    expect(edge).not.toContain('a sign-in link is on its way');
     expect(edge).not.toContain('IDEA_SIGNUP_INVITE_CODE');
   });
 

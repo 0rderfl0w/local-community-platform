@@ -25,14 +25,14 @@ export default function InviteEmailForm({ code, mode }: Props) {
     setStatus('loading');
 
     try {
-      await requestMagicLink(mode === 'signin'
+      const response = await requestMagicLink(mode === 'signin'
         ? { email, context: 'signin', emailConsent: true }
         : { email, code, emailConsent: true });
 
       setStatus('success');
       startRetryCountdown();
       setMessage(mode === 'signin'
-        ? `Open the newest email from ${communityConfig.name} and tap the link to sign in. It can take a minute.`
+        ? response.message || 'Request received. If this address belongs to an active member, check the inbox for a sign-in link.'
         : `Open the newest email from ${communityConfig.name} and tap the link to create your account or sign in. It can take a minute.`);
     } catch (caught) {
       console.error('[invite-request]', caught);

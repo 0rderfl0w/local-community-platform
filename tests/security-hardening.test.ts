@@ -407,7 +407,7 @@ describe('delivery security contracts', () => {
     expect(migration).toContain('u.created_at < r.requested_at');
     expect(migration).not.toContain('drop function if exists public.complete_invite_redemption');
     expect(edge).toContain("invite_flow: 'rolling_v1'");
-    expect(edge.indexOf('await markInviteDelivery(supabaseUrl, serviceRoleKey, reserved.redemption_id, true)')).toBeLessThan(edge.indexOf('const newAccountCreated = await sendInvitedLink'));
+    expect(edge.indexOf('await markInviteDelivery(supabaseUrl, serviceRoleKey, reserved.redemption_id, true)')).toBeLessThan(edge.indexOf('newAccountCreated = await sendInvitedLink'));
     expect(edge).toContain("'/rest/v1/rpc/mark_invite_delivery'");
     expect(edge).toContain("'/rest/v1/rpc/prepare_existing_invite_user'");
     expect(edge).toContain('const existingUser = [400, 422].includes');

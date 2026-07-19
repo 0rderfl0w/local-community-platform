@@ -40,5 +40,5 @@ export function clearIdeaDraft() {
 export async function requestIdeaSignIn(email: string) {
   // Keep the deployed Edge Function's legacy return marker; the callback maps it to canonical /posts.
   const body = await requestMagicLink({ email, context: 'signin', next: '/ideas', emailConsent: true });
-  return body.message || 'If that email belongs to a member, check it for your sign-in link.';
+  return body.message || 'Request received. If that address belongs to an active member, check the inbox for a sign-in link.';
 }

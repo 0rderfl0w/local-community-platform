@@ -16,6 +16,7 @@ import RipTaxonomyPicker from './RipTaxonomyPicker';
 import { communityConfig } from '@/config/community';
 import MagicLinkSteps from '@/components/auth/MagicLinkSteps';
 import { useRetryCountdown } from '@/components/auth/useRetryCountdown';
+import ComposerMagicLinkStatus from './ComposerMagicLinkStatus';
 
 type ComposerStage = 'form' | 'email' | 'sent';
 type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
@@ -44,6 +45,7 @@ export default function IdeaComposer({ tagCatalog, tagCatalogLoading, tagCatalog
   const [stage, setStage] = useState<ComposerStage>('form');
   const [status, setStatus] = useState<SaveStatus>('idle');
   const [message, setMessage] = useState('');
+  const [emailError, setEmailError] = useState('');
   const [emailBusy, setEmailBusy] = useState(false);
   const { retrySeconds, startRetryCountdown } = useRetryCountdown();
 
@@ -89,6 +91,7 @@ export default function IdeaComposer({ tagCatalog, tagCatalogLoading, tagCatalog
   function open() {
     setStage('form');
     setAnonymousChoice(null);
+    setEmailError('');
     if (status !== 'saved') setMessage('');
     setStatus('idle');
     dialogRef.current?.showModal();
@@ -138,23 +141,26 @@ export default function IdeaComposer({ tagCatalog, tagCatalogLoading, tagCatalog
     saveIdeaDraft(title.trim(), body.trim(), category, tags);
     setEmailConsent(false);
     setMessage('');
+    setEmailError('');
     setStage('email');
   }
 
   async function requestComposerSignInLink() {
-    setMessage('');
+    setEmailError('');
     if (!emailConsent) {
-      setMessage('Tick the box so we can send your email link.');
+      setEmailError('Tick the box so we can send your email link.');
       return;
     }
     setEmailBusy(true);
     try {
       saveIdeaDraft(title.trim(), body.trim(), category, tags);
-      await requestIdeaSignIn(email);
+      const responseMessage = await requestIdeaSignIn(email);
+      setMessage(responseMessage);
+      setEmailError('');
       startRetryCountdown();
       setStage('sent');
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : 'Could not send the sign-in link.');
+      setEmailError(error instanceof Error ? error.message : 'Could not send the sign-in link.');
     } finally { setEmailBusy(false); }
   }
 
@@ -193,7 +199,7 @@ export default function IdeaComposer({ tagCatalog, tagCatalogLoading, tagCatalog
             <div>
               <p className="text-xs font-black uppercase tracking-[0.18em] text-limewash">Community post</p>
               <h2 id="post-composer-title" className="mt-2 text-2xl font-black text-white">
-                {stage === 'form' ? 'Create a new post' : stage === 'email' ? 'Sign in to finish your post' : 'Check your email'}
+                {stage === 'form' ? 'Create a new post' : stage === 'email' ? 'Sign in to finish your post' : 'Request received'}
               </h2>
             </div>
             <button type="button" className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-braga-300/25 text-braga-100 transition hover:border-limewash/70 hover:text-limewash" onClick={close} aria-label="Close post composer" disabled={status === 'saving' || emailBusy}>
@@ -261,21 +267,19 @@ export default function IdeaComposer({ tagCatalog, tagCatalogLoading, tagCatalog
                 </span>
               </label>
               <div className="mt-6 grid gap-3"><button className="btn-primary" disabled={emailBusy || !emailConsent}>{emailBusy ? 'Sending…' : 'Send sign-in link'}</button><button type="button" className="px-4 py-2 text-sm text-braga-200 hover:text-white disabled:cursor-not-allowed disabled:opacity-50" onClick={() => setStage('form')} disabled={emailBusy}>Back</button></div>
-              {message && <p className="error-message mt-4" role="alert">{message}</p>}
+              {emailError && <p className="error-message mt-4" role="alert">{emailError}</p>}
             </form>
           )}
 
           {stage === 'sent' && (
-            <div className="mt-6">
-              <p className="leading-7 text-braga-100">Open the newest email from {communityConfig.name} and tap the link. Your post will be here when you return.</p>
-              <div className="mt-6 grid gap-3">
-                <button type="button" className="btn-primary w-full" onClick={() => void requestComposerSignInLink()} disabled={emailBusy || retrySeconds > 0}>
-                  {emailBusy ? 'Sending…' : retrySeconds > 0 ? `Send again in ${retrySeconds}s` : 'Send magic link again'}
-                </button>
-                <button type="button" className="btn-secondary w-full" onClick={close} disabled={emailBusy}>Done</button>
-              </div>
-              {message && <p className="error-message mt-4" role="alert">{message}</p>}
-            </div>
+            <ComposerMagicLinkStatus
+              message={message}
+              error={emailError}
+              emailBusy={emailBusy}
+              retrySeconds={retrySeconds}
+              onRetry={() => void requestComposerSignInLink()}
+              onDone={close}
+            />
           )}
         </div>
       </dialog>

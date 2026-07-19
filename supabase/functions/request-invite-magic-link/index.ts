@@ -1,3 +1,9 @@
+import {
+  createUpstreamError,
+  maskedSigninMessage,
+  publicInviteDeliveryError
+} from '../_shared/auth-delivery-errors.ts';
+
 type InviteRequest = {
   email?: string;
   code?: string;
@@ -51,13 +57,6 @@ function normalizeCode(value: unknown) {
   return typeof value === 'string' ? value.trim().toLowerCase() : '';
 }
 
-function publicInviteError(message: string) {
-  if (/wait|too many|rate/i.test(message)) return { status: 429, error: 'Please wait before requesting another sign-in link.' };
-  if (/invalid email/i.test(message)) return { status: 400, error: 'Enter a valid email address.' };
-  if (/invalid|active|expired|exhausted|limit|revoked|suspended/i.test(message)) return { status: 403, error: 'This invite cannot be used. Ask a member or organizer for a current private link.' };
-  return { status: 500, error: 'The sign-in link could not be sent. Please try again.' };
-}
-
 async function apiRequest<T>(supabaseUrl: string, path: string, init: RequestInit, key: string) {
   const response = await fetch(`${supabaseUrl}${path}`, {
     ...init,
@@ -75,10 +74,7 @@ async function apiRequest<T>(supabaseUrl: string, path: string, init: RequestIni
   try { body = text ? JSON.parse(text) : null; } catch { body = { message: text }; }
 
   if (!response.ok) {
-    const message = typeof body === 'object' && body && 'message' in body ? String((body as { message?: unknown }).message ?? '') : `Request failed: ${response.status}`;
-    const error = new Error(message) as Error & { status?: number };
-    error.status = response.status;
-    throw error;
+    throw createUpstreamError(body, response.status);
   }
   return body as T;
 }
@@ -202,7 +198,7 @@ Deno.serve(async (request) => {
     } catch (caught) {
       console.error('Existing-member magic-link request failed', caught);
     }
-    return json({ ok: true, message: 'If that email belongs to a member, a sign-in link is on its way.' }, 200, cors);
+    return json({ ok: true, message: maskedSigninMessage }, 200, cors);
   }
 
   const code = normalizeCode(payload.code);
@@ -227,14 +223,15 @@ Deno.serve(async (request) => {
     if (!rows?.[0]) throw new Error('Invite reservation failed.');
     reserved = rows[0];
   } catch (caught) {
-    const safe = publicInviteError(caught instanceof Error ? caught.message : '');
+    const safe = publicInviteDeliveryError(caught);
     return json({ error: safe.error }, safe.status, cors);
   }
 
+  let newAccountCreated: boolean;
   try {
     // Arm the claim before GoTrue can confirm a new Auth user.
     await markInviteDelivery(supabaseUrl, serviceRoleKey, reserved.redemption_id, true);
-    const newAccountCreated = await sendInvitedLink(
+    newAccountCreated = await sendInvitedLink(
       supabaseUrl,
       reserved.email,
       reserved.code,
@@ -244,9 +241,6 @@ Deno.serve(async (request) => {
       serviceRoleKey,
       communityName
     );
-    if (!newAccountCreated) {
-      await markInviteDelivery(supabaseUrl, serviceRoleKey, reserved.redemption_id, false);
-    }
   } catch (caught) {
     console.error('Invite email request failed', caught);
     const status = (caught as Error & { status?: number }).status;
@@ -265,7 +259,16 @@ Deno.serve(async (request) => {
     } else {
       console.error('Invite delivery outcome is ambiguous; keeping the pending claim until expiry.');
     }
-    return json({ error: 'The sign-in link could not be sent. Please try again.' }, 500, cors);
+    const safe = publicInviteDeliveryError(caught);
+    return json({ error: safe.error }, safe.status, cors);
+  }
+
+  if (!newAccountCreated) {
+    try {
+      await markInviteDelivery(supabaseUrl, serviceRoleKey, reserved.redemption_id, false);
+    } catch (caught) {
+      console.error('Invite delivery bookkeeping failed after the email was accepted', caught);
+    }
   }
 
   return json({ ok: true, message: `Check your email for your one-time ${communityName} link.` }, 200, cors);
