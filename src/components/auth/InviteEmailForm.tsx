@@ -33,7 +33,7 @@ export default function InviteEmailForm({ code, mode }: Props) {
       startRetryCountdown();
       setMessage(mode === 'signin'
         ? `Open the newest email from ${communityConfig.name} and tap the link to sign in. It can take a minute.`
-        : `Open the newest email from ${communityConfig.name} and tap the link to create your account. It can take a minute.`);
+        : `Open the newest email from ${communityConfig.name} and tap the link to create your account or sign in. It can take a minute.`);
     } catch (caught) {
       console.error('[invite-request]', caught);
       setStatus('error');
@@ -65,18 +65,16 @@ export default function InviteEmailForm({ code, mode }: Props) {
             ? `Send again in ${retrySeconds}s`
             : status === 'success'
               ? 'Send magic link again'
-              : mode === 'signin' ? 'Send sign-in link' : 'Send account link'}
+              : mode === 'signin' ? 'Send sign-in link' : 'Send magic link'}
       </button>
       {message && <p className={status === 'error' ? 'error-message' : 'status-message'} role={status === 'error' ? 'alert' : 'status'} aria-live="polite">{message}</p>}
-      {mode === 'signin' ? (
+      {mode === 'signin' && (
         <aside className="rounded-xl border border-limewash/35 bg-limewash/[0.08] p-4">
           <p className="text-base font-black text-white">New here?</p>
           <p className="mt-1 text-sm leading-6 text-braga-100">
             Get an invite from a friend who’s already a member, or <a className="font-bold text-limewash underline decoration-limewash/40 underline-offset-4 hover:decoration-limewash" href={communityConfig.whatsappUrl} target="_blank" rel="noreferrer noopener">join the WhatsApp community</a>.
           </p>
         </aside>
-      ) : (
-        <p className="text-xs leading-5 text-braga-200">This invite creates one member account.</p>
       )}
     </form>
   );

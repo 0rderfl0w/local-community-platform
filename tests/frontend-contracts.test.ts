@@ -390,7 +390,10 @@ describe('launch frontend contracts', () => {
     const composer = await read('src/components/ideas/IdeaComposer.tsx');
     const edge = await read('supabase/functions/request-invite-magic-link/index.ts');
     expect(page).toContain('description={`Sign in to ${communityConfig.name} or get a private invitation to join.`}');
-    expect(join).toContain('Sign in or create your account');
+    expect(join).toContain('You’re invited');
+    expect(join).toContain('Welcome to {communityConfig.name}');
+    expect(join).toContain('{communityConfig.description}');
+    expect(join).toContain('Create your account—or sign in—using a magic link.');
     expect(page).toContain('<SignInTabs client:load />');
     expect(page).not.toContain('memberInviteCode');
     expect(tabs).toContain("{ id: 'signin', label: 'Sign In' }");
@@ -411,7 +414,9 @@ describe('launch frontend contracts', () => {
     expect(steps).toContain('Tap the link');
     expect(form).toContain('MagicLinkSteps');
     expect(form).toContain('Send sign-in link');
-    expect(form).toContain('Send account link');
+    expect(form).toContain('Send magic link');
+    expect(form).toContain('create your account or sign in');
+    expect(form).not.toContain('This invite creates one member account.');
     expect(form).toContain('useRetryCountdown');
     expect(form).toContain('startRetryCountdown();');
     expect(form).toContain('Send magic link again');
