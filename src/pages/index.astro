@@ -4,94 +4,266 @@ import { communityConfig } from '../config/community';
 
 const whatsappUrl = communityConfig.whatsappUrl;
 const home = communityConfig.home;
+const communityMark = communityConfig.name.split(/\s+/).slice(0, 2).map((word) => word[0]).join('').toUpperCase();
 ---
 <BaseLayout title={`${communityConfig.name} · ${communityConfig.tagline}`} description={communityConfig.description}>
-  <main>
-    <section class="border-b border-white/10">
-      <div class="mx-auto grid max-w-6xl gap-12 px-4 py-20 sm:px-6 lg:grid-cols-[1.15fr_0.85fr] lg:items-center lg:px-8 lg:py-28">
-        <div>
-          <p class="mb-5 text-sm font-bold uppercase tracking-[0.2em] text-limewash">{home.eyebrow}</p>
-          <h1 class="max-w-4xl text-5xl font-black tracking-tight text-white sm:text-6xl lg:text-7xl">{home.heroTitle}</h1>
-          <p class="mt-7 max-w-3xl text-lg leading-8 text-braga-100 sm:text-xl sm:leading-9">
+  <div class="home-page overflow-hidden">
+    <section class="home-hero relative isolate flex min-h-[calc(100dvh-73px)] items-end overflow-hidden border-b border-white/10" aria-labelledby="home-hero-title">
+      {home.heroImage.src && <img
+        class="home-hero-image absolute inset-0 -z-30 h-full w-full object-cover object-[58%_50%]"
+        src={home.heroImage.src}
+        alt={home.heroImage.alt}
+        width="1920"
+        height="1080"
+        loading="eager"
+        fetchpriority="high"
+        decoding="async"
+      />}
+      <div class="home-hero-scrim absolute inset-0 -z-20" aria-hidden="true"></div>
+      <div class="home-hero-grid absolute inset-0 -z-10" aria-hidden="true"></div>
+
+      <div class="mx-auto w-full max-w-7xl px-4 pb-16 pt-16 sm:px-6 sm:pb-20 lg:px-8 lg:pb-24">
+        <div class="home-hero-copy max-w-4xl">
+          <p class="mb-5 text-xs font-bold uppercase tracking-[0.2em] text-limewash sm:text-sm">{home.eyebrow}</p>
+          <h1 id="home-hero-title" class="max-w-4xl text-5xl font-bold leading-[0.96] tracking-[-0.055em] text-white sm:text-6xl lg:text-[4.75rem]">{home.heroTitle}</h1>
+          <p class="mt-6 max-w-xl text-lg leading-8 text-white/82 sm:text-xl sm:leading-9">
             {home.heroBody}
           </p>
-          <div class="mt-9 flex flex-wrap gap-4">
-            <a href="/posts" class="btn-primary">See Posts</a>
-            <a href={whatsappUrl} class="btn-secondary" target="_blank" rel="noreferrer noopener">Join the WhatsApp Community</a>
+          <div class="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+            <a href="/posts" class="btn-primary w-full sm:w-auto">See Posts</a>
+            <a href={whatsappUrl} class="btn-secondary w-full bg-ink-950/35 backdrop-blur-sm sm:w-auto" target="_blank" rel="noreferrer noopener">Join the WhatsApp Community</a>
           </div>
         </div>
-
-        <aside class="card overflow-hidden p-0" aria-label="Who the community is for">
-          <div class="border-b border-white/10 p-6 sm:p-8">
-            <p class="text-xs font-bold uppercase tracking-[0.18em] text-violet-200">There is no “advanced enough”</p>
-            <h2 class="mt-3 text-2xl font-black text-white">Different experience. Shared curiosity.</h2>
-          </div>
-          <ol class="divide-y divide-white/10">
-            {home.experienceRange.map((item, index) => (
-              <li class="flex items-center gap-4 px-6 py-4 sm:px-8">
-                <span class="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-limewash/40 bg-limewash/10 text-xs font-black text-limewash">{index + 1}</span>
-                <span class="text-sm leading-6 text-braga-100">{item}</span>
-              </li>
-            ))}
-          </ol>
-          <p class="border-t border-white/10 bg-white/[0.025] px-6 py-5 text-sm font-semibold text-white sm:px-8">{home.experienceFooter}</p>
-        </aside>
       </div>
+
+      {home.heroImage.credit && <p class="absolute bottom-4 right-4 text-[11px] font-medium text-white/60 sm:bottom-5 sm:right-6">
+        Photo: {home.heroImage.creditUrl
+          ? <a href={home.heroImage.creditUrl} target="_blank" rel="noreferrer noopener" class="underline decoration-white/35 underline-offset-4 hover:text-white">{home.heroImage.credit}</a>
+          : home.heroImage.credit}
+      </p>}
     </section>
 
-    <section class="mx-auto max-w-6xl px-4 py-20 sm:px-6 lg:px-8 lg:py-24">
+    <section class="home-reveal mx-auto max-w-7xl px-4 py-20 sm:px-6 sm:py-24 lg:px-8 lg:py-32" aria-labelledby="experience-title">
       <div class="max-w-4xl">
-        <p class="text-sm font-bold uppercase tracking-[0.2em] text-limewash">Why this website exists</p>
-        <h2 class="mt-4 text-4xl font-black tracking-tight text-white sm:text-5xl">WhatsApp is the conversation. This site is the memory.</h2>
-        <p class="mt-6 max-w-3xl text-lg leading-8 text-braga-100">The chat is where we talk. This is where useful ideas, perspectives, and resources stay findable—and where the wider community gets a say in what happens next.</p>
+        <h2 id="experience-title" class="text-4xl font-bold leading-[1.02] tracking-[-0.04em] text-white sm:text-5xl lg:text-6xl">
+          {home.experienceTitle}<br />
+          <span class="text-limewash">{home.experienceAccent}</span>
+        </h2>
+        <p class="mt-6 max-w-2xl text-lg leading-8 text-braga-100">{home.experienceFooter}</p>
       </div>
 
-      <div class="mt-12 grid gap-5 md:grid-cols-3">
-        <article class="card p-6 sm:p-7">
-          <span class="text-sm font-black text-limewash">01</span>
-          <h3 class="mt-4 text-xl font-bold text-white">Share what’s useful</h3>
-          <p class="mt-3 text-sm leading-7 text-braga-100">Post an idea, a resource worth keeping, or a perspective that might help someone else. It stays available after the WhatsApp thread moves on.</p>
-          <a href="/posts" class="mt-5 inline-flex text-sm font-bold text-limewash hover:underline">Browse community posts →</a>
-        </article>
-
-        <article class="card p-6 sm:p-7">
-          <span class="text-sm font-black text-limewash">02</span>
-          <h3 class="mt-4 text-xl font-bold text-white">Shape local events</h3>
-          <p class="mt-3 text-sm leading-7 text-braga-100">Posts and upvotes show what people actually want to explore together, so meetups reflect the interests of the community—not just the loudest voice.</p>
-          <a href="/events" class="mt-5 inline-flex text-sm font-bold text-limewash hover:underline">See upcoming events →</a>
-        </article>
-
-        <article class="card p-6 sm:p-7">
-          <span class="text-sm font-black text-limewash">03</span>
-          <h3 class="mt-4 text-xl font-bold text-white">Give everyone a voice</h3>
-          <p class="mt-3 text-sm leading-7 text-braga-100">You don’t have to catch the right moment in a busy chat. Anyone can share, vote, and help decide what the community pays attention to next.</p>
-        </article>
-      </div>
-    </section>
-
-    <section class="border-y border-white/10 bg-white/[0.02]">
-      <div class="mx-auto grid max-w-6xl gap-10 px-4 py-20 sm:px-6 lg:grid-cols-[0.8fr_1.2fr] lg:items-start lg:px-8 lg:py-24">
-        <div>
-          <p class="text-sm font-bold uppercase tracking-[0.2em] text-violet-200">Website membership</p>
-          <h2 class="mt-4 text-4xl font-black tracking-tight text-white sm:text-5xl">Your name, attached to what you share.</h2>
-        </div>
-        <div class="card p-6 sm:p-8">
-          <p class="text-lg leading-8 text-braga-100">Anyone can browse posts, publish, and vote without an account. A website membership simply connects your posts to your name and profile, so people know who shared them and you can edit them later.</p>
-          <ul class="mt-7 grid gap-3 text-sm text-braga-100 sm:grid-cols-3">
-            <li class="rounded-xl border border-white/10 p-4"><strong class="block text-white">Own your posts</strong><span class="mt-1 block">Edit what you shared.</span></li>
-            <li class="rounded-xl border border-white/10 p-4"><strong class="block text-white">Add your profile</strong><span class="mt-1 block">Put a person behind the post.</span></li>
-            <li class="rounded-xl border border-white/10 p-4"><strong class="block text-white">Choose visibility</strong><span class="mt-1 block">Joining the directory is optional.</span></li>
-          </ul>
-          <div class="mt-7 flex flex-wrap gap-4">
-            <a href="/signin" class="btn-secondary">Existing member sign in</a>
-            <a href="/members" class="inline-flex items-center px-2 text-sm font-bold text-limewash hover:underline">Meet the members →</a>
+      <div class="mt-14 grid gap-x-8 gap-y-0 sm:grid-cols-2 lg:grid-cols-4">
+        {home.experienceRange.map((item) => (
+          <div class="group border-t border-white/16 py-6 lg:py-8">
+            <span class="mb-6 block h-1 w-10 rounded-full bg-limewash transition-[width] duration-300 group-hover:w-16" aria-hidden="true"></span>
+            <p class="max-w-[15rem] text-lg font-semibold leading-7 text-white">{item}</p>
           </div>
+        ))}
+      </div>
+    </section>
+
+    <section class="home-memory border-y border-white/10 bg-white/[0.025]" aria-labelledby="memory-title">
+      <div class="home-reveal mx-auto max-w-7xl px-4 py-20 sm:px-6 sm:py-24 lg:px-8 lg:py-32">
+        <div class="max-w-4xl">
+          <h2 id="memory-title" class="text-4xl font-bold leading-[1.03] tracking-[-0.04em] text-white sm:text-5xl lg:text-6xl">{home.memoryTitle}</h2>
+          <p class="mt-6 max-w-2xl text-lg leading-8 text-braga-100">{home.memoryBody}</p>
+        </div>
+
+        <div class="mt-14 grid gap-5 lg:auto-rows-fr lg:grid-cols-[1.15fr_0.85fr]">
+          <a href="/posts" class="home-route home-route-posts group relative min-h-[28rem] overflow-hidden rounded-[2rem] bg-limewash p-7 text-ink-950 sm:p-9 lg:row-span-2 lg:min-h-0">
+            <span class="absolute -bottom-14 -right-10 grid h-64 w-64 rotate-[-8deg] place-items-center rounded-full border-[28px] border-ink-950/20 text-7xl font-black opacity-35 transition duration-500 group-hover:rotate-0 group-hover:scale-105 sm:h-80 sm:w-80 sm:text-8xl" aria-hidden="true">{communityMark}</span>
+            <div class="relative flex h-full max-w-md flex-col justify-between gap-14">
+              <div>
+                <h3 class="text-4xl font-bold tracking-[-0.04em] sm:text-5xl">Posts</h3>
+                <p class="mt-4 text-xl font-semibold leading-8 text-ink-900">Save the useful stuff.</p>
+              </div>
+              <div>
+                <p class="max-w-sm text-base leading-7 text-ink-800">{home.postsBody}</p>
+                <span class="mt-6 inline-flex items-center gap-2 font-bold">Browse community posts <span aria-hidden="true">→</span></span>
+              </div>
+            </div>
+          </a>
+
+          <a href="/events" class="home-route home-route-events group relative overflow-hidden rounded-[2rem] border border-white/12 p-7 sm:p-9">
+            <div class="relative max-w-lg">
+              <h3 class="text-3xl font-bold tracking-[-0.035em] text-white sm:text-4xl">Events</h3>
+              <p class="mt-3 text-xl font-semibold text-braga-100">Turn shared interests into meetups.</p>
+              <p class="mt-5 max-w-md text-base leading-7 text-braga-100/78">{home.eventsBody}</p>
+              <span class="mt-7 inline-flex items-center gap-2 font-bold text-limewash">See upcoming events <span aria-hidden="true">→</span></span>
+            </div>
+          </a>
+
+          <a href="/members" class="home-route home-route-members group relative overflow-hidden rounded-[2rem] border border-white/12 bg-ink-900 p-7 sm:p-9">
+            <div class="relative max-w-lg">
+              <h3 class="text-3xl font-bold tracking-[-0.035em] text-white sm:text-4xl">Members</h3>
+              <p class="mt-3 text-xl font-semibold text-braga-100">Know who is nearby.</p>
+              <p class="mt-5 max-w-md text-base leading-7 text-braga-100/78">{home.membersBody}</p>
+              <span class="mt-7 inline-flex items-center gap-2 font-bold text-limewash">Meet the members <span aria-hidden="true">→</span></span>
+            </div>
+          </a>
         </div>
       </div>
     </section>
 
-    <section class="mx-auto max-w-4xl px-4 py-20 text-center sm:px-6 lg:py-24">
-      <p class="text-2xl font-bold leading-10 text-white sm:text-3xl">{home.closingStatement}</p>
+    <section class="home-reveal mx-auto grid max-w-7xl gap-12 px-4 py-20 sm:px-6 sm:py-24 lg:grid-cols-[0.9fr_1.1fr] lg:items-center lg:gap-20 lg:px-8 lg:py-32" aria-labelledby="membership-title">
+      <figure class="relative">
+        <div class="overflow-hidden rounded-[2rem] border border-white/10">
+          {home.membershipImage.src
+            ? <img
+                src={home.membershipImage.src}
+                alt={home.membershipImage.alt}
+                width="1200"
+                height="1600"
+                loading="lazy"
+                decoding="async"
+                class="aspect-[4/5] w-full object-cover transition duration-700 hover:scale-[1.02]"
+              />
+            : <div class="home-community-mark grid aspect-[4/5] place-items-center text-8xl font-black text-limewash sm:text-9xl" aria-hidden="true">{communityMark}</div>}
+        </div>
+        {home.membershipImage.credit && <figcaption class="mt-3 text-xs text-braga-200/70">
+          Photo: {home.membershipImage.creditUrl
+            ? <a href={home.membershipImage.creditUrl} target="_blank" rel="noreferrer noopener" class="underline decoration-white/25 underline-offset-4 hover:text-white">{home.membershipImage.credit}</a>
+            : home.membershipImage.credit}
+        </figcaption>}
+      </figure>
+
+      <div>
+        <h2 id="membership-title" class="text-4xl font-bold leading-[1.03] tracking-[-0.04em] text-white sm:text-5xl lg:text-6xl">{home.membershipTitle}</h2>
+        <p class="mt-6 text-lg leading-8 text-braga-100">Anyone can browse posts, publish, and vote without an account.</p>
+        <p class="mt-3 max-w-2xl text-lg leading-8 text-braga-100">{home.membershipBody}</p>
+
+        <dl class="mt-10 grid gap-x-6 sm:grid-cols-3">
+          <div class="border-t border-white/15 py-5">
+            <dt class="font-bold text-white">Manage your posts</dt>
+            <dd class="mt-2 text-sm leading-6 text-braga-100/78">Edit what you share.</dd>
+          </div>
+          <div class="border-t border-white/15 py-5">
+            <dt class="font-bold text-white">Use your profile</dt>
+            <dd class="mt-2 text-sm leading-6 text-braga-100/78">Put a person behind the idea.</dd>
+          </div>
+          <div class="border-t border-white/15 py-5">
+            <dt class="font-bold text-white">Choose visibility</dt>
+            <dd class="mt-2 text-sm leading-6 text-braga-100/78">Directory listing stays optional.</dd>
+          </div>
+        </dl>
+
+        <div class="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+          <a href="/members" class="btn-primary w-full sm:w-auto">Meet the Members</a>
+          <a href="/signin" class="btn-secondary w-full sm:w-auto">Existing Member Sign In</a>
+        </div>
+      </div>
     </section>
-  </main>
+
+    <section class="border-t border-white/10 px-4 py-20 sm:px-6 sm:py-24 lg:px-8 lg:py-32" aria-labelledby="closing-title">
+      <div class="home-reveal mx-auto max-w-5xl text-center">
+        <h2 id="closing-title" class="text-4xl font-bold leading-[1.03] tracking-[-0.04em] text-white sm:text-5xl lg:text-6xl">{home.closingStatement}</h2>
+        <p class="mx-auto mt-6 max-w-xl text-lg leading-8 text-braga-100">{home.closingBody}</p>
+        <a href={whatsappUrl} class="btn-primary mt-9 w-full sm:w-auto" target="_blank" rel="noreferrer noopener">Join the WhatsApp Community</a>
+      </div>
+    </section>
+  </div>
 </BaseLayout>
+
+<style>
+  .home-page {
+    font-family: 'Instrument Sans', Inter, ui-sans-serif, system-ui, sans-serif;
+  }
+
+  .home-hero,
+  .home-community-mark {
+    background:
+      radial-gradient(circle at 75% 18%, rgba(34, 211, 238, 0.16), transparent 34%),
+      radial-gradient(circle at 24% 78%, rgba(217, 249, 157, 0.12), transparent 38%),
+      #07110d;
+  }
+
+  .home-hero-scrim {
+    background:
+      linear-gradient(90deg, rgba(5, 13, 10, 0.97) 0%, rgba(5, 13, 10, 0.9) 35%, rgba(5, 13, 10, 0.54) 62%, rgba(5, 13, 10, 0.18) 100%),
+      linear-gradient(0deg, rgba(5, 13, 10, 0.88) 0%, transparent 44%, rgba(5, 13, 10, 0.28) 100%);
+  }
+
+  .home-hero-grid {
+    opacity: 0.18;
+    background-image:
+      linear-gradient(rgba(217, 249, 157, 0.12) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(217, 249, 157, 0.12) 1px, transparent 1px);
+    background-size: 72px 72px;
+    mask-image: linear-gradient(90deg, black, transparent 72%);
+  }
+
+  .home-route {
+    isolation: isolate;
+    transition: transform 280ms cubic-bezier(0.16, 1, 0.3, 1), border-color 280ms ease, background-color 280ms ease;
+  }
+
+  .home-route:hover {
+    transform: translateY(-4px);
+  }
+
+  .home-route:active {
+    transform: translateY(-1px) scale(0.99);
+  }
+
+  .home-route-events {
+    background:
+      radial-gradient(circle at 92% 10%, rgba(34, 211, 238, 0.15), transparent 38%),
+      rgba(16, 27, 45, 0.82);
+  }
+
+  .home-route-events:hover,
+  .home-route-members:hover {
+    border-color: rgba(217, 249, 157, 0.44);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .home-hero-image {
+      animation: home-image-settle 1.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    .home-hero-copy > * {
+      animation: home-copy-enter 760ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    .home-hero-copy > :nth-child(1) { animation-delay: 80ms; }
+    .home-hero-copy > :nth-child(2) { animation-delay: 150ms; }
+    .home-hero-copy > :nth-child(3) { animation-delay: 230ms; }
+    .home-hero-copy > :nth-child(4) { animation-delay: 310ms; }
+
+    @supports (animation-timeline: view()) {
+      .home-reveal {
+        animation: home-section-reveal linear both;
+        animation-timeline: view();
+        animation-range: entry 8% entry 42%;
+      }
+    }
+  }
+
+  @keyframes home-image-settle {
+    from { opacity: 0; transform: scale(1.045); }
+    to { opacity: 1; transform: scale(1); }
+  }
+
+  @keyframes home-copy-enter {
+    from { opacity: 0; transform: translateY(22px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes home-section-reveal {
+    from { opacity: 0; transform: translateY(36px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (max-width: 767px) {
+    .home-hero-scrim {
+      background:
+        linear-gradient(0deg, rgba(5, 13, 10, 0.98) 0%, rgba(5, 13, 10, 0.82) 58%, rgba(5, 13, 10, 0.32) 100%),
+        linear-gradient(90deg, rgba(5, 13, 10, 0.62), rgba(5, 13, 10, 0.18));
+    }
+
+    .home-hero-grid {
+      background-size: 48px 48px;
+      mask-image: linear-gradient(0deg, black, transparent 82%);
+    }
+  }
+</style>

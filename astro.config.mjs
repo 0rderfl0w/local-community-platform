@@ -6,6 +6,9 @@ import vercel from '@astrojs/vercel';
 export default defineConfig({
   output: 'static',
   adapter: vercel(),
+  devToolbar: {
+    enabled: false
+  },
   prefetch: {
     prefetchAll: true,
     defaultStrategy: 'hover'

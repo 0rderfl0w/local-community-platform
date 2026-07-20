@@ -348,12 +348,16 @@ describe('launch frontend contracts', () => {
     expect(home).toContain('communityConfig.tagline');
     expect(home).toContain('communityConfig.description');
     expect(home).toContain('communityConfig.home');
+    expect(home).toContain('home.heroImage.src');
+    expect(home).toContain('home.membershipImage.src');
+    expect(home).toContain('home.memoryTitle');
+    expect(home).toContain('home.membershipTitle');
+    expect(home).not.toContain('/images/braga-aerial-dusk.webp');
+    expect(home).not.toContain('/images/bom-jesus-aerial.webp');
+    expect(home).not.toContain('/images/braga-brain-network.webp');
     expect(home).not.toContain('class="btn-secondary">Browse Posts');
     expect(config).toContain('Curious about AI? Come meet your people.');
-    expect(home).toContain('WhatsApp is the conversation. This site is the memory.');
-    expect(home).toContain('Your name, attached to what you share.');
     expect(home).toContain('Anyone can browse posts, publish, and vote without an account.');
-    expect(home).toContain('Shape local events');
     expect(home).not.toContain('How to join');
     expect(authStatus).not.toContain('Use private invite');
     expect(authStatus).toContain('Sign In');
@@ -367,7 +371,7 @@ describe('launch frontend contracts', () => {
     expect(footer).toContain('text-limewash underline');
     expect(footer).toContain('https://buymeacoffee.com/richkapp');
     expect(footer).toContain('☕️ buy the creator a coffee');
-    expect(footer).toContain('opacity-50');
+    expect(footer).toContain('text-braga-200/75');
     expect(footer).toContain('BugReportLauncher client:visible');
     expect(footer).not.toContain('Source code');
     await expect(access(new URL('src/pages/join.astro', root))).rejects.toThrow();

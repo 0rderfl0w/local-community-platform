@@ -5,7 +5,7 @@ export const communityConfig = {
   timeZone: 'Europe/Lisbon',
   timeZoneLabel: 'Braga time',
   tagline: 'A local AI community',
-  description: 'A Braga community for people actively using AI—from everyday ChatGPT users to advanced builders and everyone in between.',
+  description: 'A Braga community for people using AI to solve real problems, build useful things, and help each other move faster.',
   whatsappUrl: 'https://chat.whatsapp.com/GwhqmjtwcPT4vVmQmqqIRW',
   githubUrl: 'https://github.com/richkapp/local-community-platform',
   legal: {
@@ -21,15 +21,37 @@ export const communityConfig = {
   home: {
     eyebrow: 'A local AI community in Braga',
     heroTitle: 'Curious about AI? Come meet your people.',
-    heroBody: 'Maybe you use ChatGPT instead of Google. Maybe a team of AI agents runs half your business. Most of us are somewhere in between. What connects us is simple: we use AI, we’re curious about where it’s going, and we want to learn from people nearby.',
+    heroBody: 'Meet Braga locals using AI to solve real problems, build useful things, and help each other move faster.',
+    heroImage: {
+      src: '',
+      alt: '',
+      credit: '',
+      creditUrl: ''
+    },
+    experienceTitle: 'You do not need to be advanced.',
+    experienceAccent: 'You need to be curious.',
     experienceRange: [
-      'Replacing Google searches with ChatGPT',
+      'Researching, drafting, and planning with AI',
       'Using AI to work smarter every day',
       'Building products, workflows, and automations',
       'Running a business with teams of AI agents'
     ],
     experienceFooter: 'If you actively use AI and want to understand it better, you belong here.',
-    closingStatement: 'Different skills. Different interests. One shared habit: actively using AI and helping each other get better at it.'
+    memoryTitle: 'The chat is the conversation. This site is the memory.',
+    memoryBody: 'Good ideas vanish in a busy chat. Here they stay useful, searchable, and able to shape what happens next.',
+    postsBody: 'Share an idea, resource, or perspective before the chat moves on.',
+    eventsBody: 'Turn shared interests into meetups and build the connection in person.',
+    membersBody: 'Meet the people behind the posts and find experience that complements your own.',
+    membershipImage: {
+      src: '',
+      alt: '',
+      credit: '',
+      creditUrl: ''
+    },
+    membershipTitle: 'A profile when you want one.',
+    membershipBody: 'Invited members can sign in without a password to manage posts, use their name when it helps, and choose whether to appear in the directory.',
+    closingStatement: 'Use AI. Share what works. Meet others doing the same.',
+    closingBody: 'The next community conversation is one click away.'
   }
 } as const;
 
