@@ -67,13 +67,14 @@ describe('launch frontend contracts', () => {
     expect(votingLink).toContain('href="/voting"');
   });
 
-  test('posts use the canonical route, sidebar controls, modal composer, and author-first cards', async () => {
+  test('posts use the canonical route, sidebar controls, modal composer, and an author-first mobile feed', async () => {
     const page = await read('src/pages/posts.astro');
     const legacyPage = await read('src/pages/ideas.astro');
     const detailPage = await read('src/pages/posts/[slug].astro');
     const legacyDetailPage = await read('src/pages/ideas/[slug].astro');
     const feed = await read('src/components/ideas/IdeaFeed.tsx');
     const authorIdentity = await read('src/components/ideas/PostAuthorIdentity.tsx');
+    const managementMenu = await read('src/components/ideas/PostManagementMenu.tsx');
     const composer = await read('src/components/ideas/IdeaComposer.tsx');
     const authStatus = await read('src/components/auth/AuthStatus.tsx');
     const settings = await read('src/pages/settings.astro');
@@ -92,8 +93,19 @@ describe('launch frontend contracts', () => {
     expect(feed.indexOf('PostAuthorIdentity profile={idea.profiles}')).toBeLessThan(feed.indexOf('href={`/posts/${idea.slug}`}'));
     expect(authorIdentity).toContain('h-8 w-8 rounded-full');
     expect(authorIdentity).toContain('items-center gap-2 text-xs');
-    expect(feed).toContain('className="text-xl font-bold text-white hover:text-limewash"');
-    expect(feed).toContain("const tagClass = 'rounded-full border border-violet-300/25 bg-violet-500/10 px-2.5 py-1 text-xs");
+    expect(feed).toContain('className="divide-y divide-white/10 sm:space-y-5 sm:divide-y-0"');
+    expect(feed).toContain('className="text-[1.05rem] font-bold leading-snug text-white transition hover:text-limewash sm:text-xl"');
+    expect(feed).toContain('className="line-clamp-3 text-[0.9375rem] leading-6 text-braga-100 sm:line-clamp-4 sm:text-sm"');
+    expect(feed).toContain("const tagClass = 'inline-flex min-h-8 items-center rounded-full border border-violet-300/25 bg-violet-500/10 px-2 text-[11px]");
+    expect(feed).toContain('<PostManagementMenu');
+    expect(feed).toContain('variant="feed"');
+    expect(managementMenu).toContain('LuEllipsis');
+    expect(managementMenu).toContain('Post options');
+    expect(managementMenu).toContain('Edit post');
+    expect(managementMenu).toContain('Mark as done');
+    expect(managementMenu).toContain('Delete post');
+    expect(managementMenu).toContain("document.addEventListener('pointerdown', closeOutside)");
+    expect(managementMenu).toContain("document.addEventListener('keydown', closeOnEscape)");
     expect(feed).not.toContain('Your posts are tied to your member profile.');
     expect(composer).toContain('Create a new post');
     expect(composer).toContain('aria-labelledby="post-composer-title"');
@@ -212,7 +224,7 @@ describe('launch frontend contracts', () => {
     expect(feed).toContain('categoryFilter');
     expect(feed).toContain('selectedTags');
     expect(feed).toContain('updateOwnIdea');
-    expect(feed).toContain('Mark done');
+    expect(feed).toContain("canMarkDone={isAdmin && idea.status !== 'closed'}");
     expect(feed).toContain('deleteIdea');
     expect(ideas).toContain('createAnonymousIdea');
     expect(ideas).toContain("rpc('post_member_anonymous_idea'");
@@ -652,7 +664,7 @@ describe('launch frontend contracts', () => {
     const privacy = await read('src/pages/privacy.astro');
 
     expect(feed).not.toContain('Narrow the feed without losing your place.');
-    expect(feed).toContain('<SharePostButton slug={idea.slug} title={idea.title} />');
+    expect(feed).toContain('<SharePostButton slug={idea.slug} title={idea.title} variant="feed" />');
     expect(detail).toContain('<SharePostButton slug={idea.slug} title={idea.title} />');
     expect(share).toContain("import { LuForward } from 'react-icons/lu'");
     expect(share).toContain("import { sharePost } from '@/lib/postSharing'");

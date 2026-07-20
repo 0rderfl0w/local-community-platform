@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { LuCheck, LuChevronDown, LuInfo, LuMessageCircle, LuPencil, LuTrash2 } from 'react-icons/lu';
+import { LuChevronDown, LuInfo, LuMessageCircle } from 'react-icons/lu';
 import type { FormSubmitEvent } from '@/lib/dom';
 import { supabase } from '@/lib/supabase';
 import { toUserMessage } from '@/lib/errors';
@@ -16,6 +16,7 @@ import UpvoteButton from './UpvoteButton';
 import BookmarkButton, { type BookmarkAccess } from './BookmarkButton';
 import IdeaComposer from './IdeaComposer';
 import PostAuthorIdentity from './PostAuthorIdentity';
+import PostManagementMenu from './PostManagementMenu';
 import PostMemberFilters from './PostMemberFilters';
 import RipTaxonomyPicker from './RipTaxonomyPicker';
 import SharePostButton from './SharePostButton';
@@ -48,10 +49,10 @@ function TaxonomyBadges({ idea, tagLabels, activeCategory, selectedTags, onCateg
   onCategory?: (category: RipCategory) => void;
   onTag?: (tag: RipTag) => void;
 }) {
-  const categoryClass = 'rounded-full border border-limewash/30 bg-limewash/10 px-2.5 py-1 text-xs font-bold uppercase tracking-wider text-limewash';
-  const tagClass = 'rounded-full border border-violet-300/25 bg-violet-500/10 px-2.5 py-1 text-xs font-semibold text-violet-200';
+  const categoryClass = 'inline-flex min-h-8 items-center rounded-full border border-limewash/30 bg-limewash/10 px-2 text-[11px] font-bold uppercase tracking-wider text-limewash sm:px-2.5 sm:text-xs';
+  const tagClass = 'inline-flex min-h-8 items-center rounded-full border border-violet-300/25 bg-violet-500/10 px-2 text-[11px] font-semibold text-violet-200 sm:px-2.5 sm:text-xs';
   const categoryLabel = ripCategoryLabel(idea.category);
-  return <div className="mb-3 flex flex-wrap gap-2">
+  return <div className="mb-2 flex flex-wrap gap-1.5 sm:mb-3 sm:gap-2">
     {onCategory
       ? <button type="button" className={`${categoryClass} transition hover:border-limewash/70 focus:outline-none focus:ring-2 focus:ring-limewash/60`} aria-label={`Filter posts by category: ${categoryLabel}`} aria-pressed={activeCategory === idea.category} onClick={() => onCategory(idea.category)}>{categoryLabel}</button>
       : <span className={categoryClass}>{categoryLabel}</span>}
@@ -299,36 +300,43 @@ export default function IdeaFeed({ initialView = 'all', showIntro = true, showVi
     </section>
   );
 
-  const feed = <div className="space-y-5">
+  const feed = <div className="divide-y divide-white/10 sm:space-y-5 sm:divide-y-0">
     {filteredIdeas.map((idea) => {
       const canEdit = libraryAccess === 'active' && Boolean(idea.viewer_can_edit);
-      return <article key={idea.id} className="card p-5 sm:p-6">
-        <header className="flex flex-wrap items-start justify-between gap-4">
+      const canManage = canEdit || isAdmin;
+      return <article key={idea.id} className="px-1 py-5 sm:rounded-3xl sm:border sm:border-white/10 sm:bg-white/[0.045] sm:p-6 sm:shadow-xl">
+        <header className="flex min-w-0 items-start justify-between gap-3">
           <PostAuthorIdentity profile={idea.profiles} createdAt={idea.created_at} />
-          <div className="ml-auto flex max-w-28 shrink-0 flex-wrap justify-end gap-2 sm:max-w-none">
-            <BookmarkButton ideaId={idea.id} title={idea.title} initialBookmarked={idea.viewer_has_bookmarked} access={libraryAccess} onChange={(bookmarked) => updateBookmark(idea.id, bookmarked)} />
-            {canEdit && <button type="button" className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-braga-300/30 text-braga-100 hover:border-limewash/70 hover:text-limewash" onClick={() => setEditing(idea)} aria-label={`Edit ${idea.title}`} title="Edit post"><LuPencil className="h-4 w-4" aria-hidden="true" /></button>}
-            {isAdmin && idea.status !== 'closed' && <button type="button" className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-limewash/30 text-limewash hover:bg-limewash/10" onClick={() => void markDone(idea)} aria-label={`Mark ${idea.title} as done`} title="Mark done"><LuCheck className="h-4 w-4" aria-hidden="true" /></button>}
-            {isAdmin && <button type="button" className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-red-300/30 text-red-200 hover:bg-red-300/10" onClick={() => void remove(idea)} aria-label={`Delete ${idea.title}`} title="Delete post"><LuTrash2 className="h-4 w-4" aria-hidden="true" /></button>}
-          </div>
+          {canManage && <PostManagementMenu
+            title={idea.title}
+            canEdit={canEdit}
+            canMarkDone={isAdmin && idea.status !== 'closed'}
+            canDelete={isAdmin}
+            onEdit={() => setEditing(idea)}
+            onMarkDone={() => void markDone(idea)}
+            onDelete={() => void remove(idea)}
+          />}
         </header>
-        <div className="mt-3">
-          <div className="flex flex-wrap items-center gap-2"><a href={`/posts/${idea.slug}`} className="text-xl font-bold text-white hover:text-limewash">{idea.title}</a>{idea.status === 'closed' && <span className="rounded-full border border-limewash/30 bg-limewash/10 px-2.5 py-1 text-xs font-bold uppercase tracking-wider text-limewash">Done</span>}</div>
-          <div className="mt-3"><TaxonomyBadges idea={idea} tagLabels={tagLabels} activeCategory={categoryFilter} selectedTags={selectedTags} onCategory={showFilters ? setCategoryFilter : undefined} onTag={showFilters ? toggleTagFilter : undefined} /></div>
-          <p className="line-clamp-4 text-sm leading-6 text-braga-100">{idea.body}</p>
+        <div className="mt-4 sm:mt-3">
+          <div className="flex flex-wrap items-center gap-2"><a href={`/posts/${idea.slug}`} className="text-[1.05rem] font-bold leading-snug text-white transition hover:text-limewash sm:text-xl">{idea.title}</a>{idea.status === 'closed' && <span className="rounded-full border border-limewash/30 bg-limewash/10 px-2.5 py-1 text-xs font-bold uppercase tracking-wider text-limewash">Done</span>}</div>
+          <div className="mt-2 sm:mt-3"><TaxonomyBadges idea={idea} tagLabels={tagLabels} activeCategory={categoryFilter} selectedTags={selectedTags} onCategory={showFilters ? setCategoryFilter : undefined} onTag={showFilters ? toggleTagFilter : undefined} /></div>
+          <p className="line-clamp-3 text-[0.9375rem] leading-6 text-braga-100 sm:line-clamp-4 sm:text-sm">{idea.body}</p>
         </div>
-        <footer className="mt-5 flex items-center justify-between border-t border-white/10 pt-4">
-          <div className="flex flex-wrap items-center gap-3">
-            <UpvoteButton ideaId={idea.id} initialCount={idea.upvote_count ?? 0} initialVoted={idea.viewer_has_voted ?? false} disabled={idea.status === 'closed'} />
+        <footer className="mt-4 flex items-center gap-1 pt-1 sm:mt-5 sm:border-t sm:border-white/10 sm:pt-4">
+          <div className="flex items-center gap-1">
+            <UpvoteButton ideaId={idea.id} initialCount={idea.upvote_count ?? 0} initialVoted={idea.viewer_has_voted ?? false} disabled={idea.status === 'closed'} variant="feed" />
             <a
               href={`/posts/${idea.slug}#comments`}
-              className="inline-flex min-h-11 items-center gap-2 rounded-full border border-braga-300/30 px-3 text-sm font-semibold text-braga-100 transition hover:border-violet-300/60 hover:text-violet-100 focus:outline-none focus:ring-2 focus:ring-violet-300/60"
+              className="inline-flex min-h-11 items-center gap-2 rounded-full border border-transparent px-3 text-sm font-semibold text-braga-100 transition hover:bg-white/[0.07] hover:text-white focus:outline-none focus:ring-2 focus:ring-limewash/70"
               aria-label={`Open ${idea.comment_count ?? 0} ${(idea.comment_count ?? 0) === 1 ? 'comment' : 'comments'} on ${idea.title}`}
             >
               <LuMessageCircle className="h-4 w-4" aria-hidden="true" />
               {idea.comment_count ?? 0}
             </a>
-            <SharePostButton slug={idea.slug} title={idea.title} />
+            <SharePostButton slug={idea.slug} title={idea.title} variant="feed" />
+          </div>
+          <div className="ml-auto">
+            <BookmarkButton ideaId={idea.id} title={idea.title} initialBookmarked={idea.viewer_has_bookmarked} access={libraryAccess} onChange={(bookmarked) => updateBookmark(idea.id, bookmarked)} variant="feed" />
           </div>
         </footer>
       </article>;

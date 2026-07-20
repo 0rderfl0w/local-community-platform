@@ -5,11 +5,12 @@ import { sharePost } from '@/lib/postSharing';
 type Props = {
   slug: string;
   title: string;
+  variant?: 'default' | 'feed';
 };
 
 type ShareStatus = 'idle' | 'shared' | 'copied' | 'error';
 
-export default function SharePostButton({ slug, title }: Props) {
+export default function SharePostButton({ slug, title, variant = 'default' }: Props) {
   const [status, setStatus] = useState<ShareStatus>('idle');
   const [busy, setBusy] = useState(false);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -51,7 +52,9 @@ export default function SharePostButton({ slug, title }: Props) {
     <span className="relative inline-flex">
       <button
         type="button"
-        className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-braga-300/30 text-braga-100 transition hover:border-violet-300/60 hover:text-violet-100 focus:outline-none focus:ring-2 focus:ring-violet-300/60 disabled:cursor-wait disabled:opacity-60"
+        className={variant === 'feed'
+          ? 'inline-flex h-11 w-11 items-center justify-center rounded-full border border-transparent text-braga-100 transition hover:bg-white/[0.07] hover:text-white focus:outline-none focus:ring-2 focus:ring-limewash/70 disabled:cursor-wait disabled:opacity-60'
+          : 'inline-flex h-11 w-11 items-center justify-center rounded-full border border-braga-300/30 text-braga-100 transition hover:border-violet-300/60 hover:text-violet-100 focus:outline-none focus:ring-2 focus:ring-violet-300/60 disabled:cursor-wait disabled:opacity-60'}
         onClick={() => void share()}
         disabled={busy}
         aria-label={`Share ${title}`}
