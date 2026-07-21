@@ -3,7 +3,6 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import { communityConfig } from '../config/community';
 import { socialCardPath } from '../lib/socialCards';
 
-const whatsappUrl = communityConfig.whatsappUrl;
 const home = communityConfig.home;
 const communityMark = communityConfig.name.split(/\s+/).slice(0, 2).map((word) => word[0]).join('').toUpperCase();
 ---
@@ -37,7 +36,7 @@ const communityMark = communityConfig.name.split(/\s+/).slice(0, 2).map((word) =
           </p>
           <div class="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
             <a href="/posts" class="btn-primary w-full sm:w-auto">See Posts</a>
-            <a href={whatsappUrl} class="btn-secondary w-full bg-ink-950/35 backdrop-blur-sm sm:w-auto" target="_blank" rel="noreferrer noopener">Join the WhatsApp Community</a>
+            <button type="button" data-whatsapp-join class="btn-secondary w-full bg-ink-950/35 backdrop-blur-sm sm:w-auto">Join the WhatsApp Community</button>
           </div>
         </div>
       </div>
@@ -164,7 +163,7 @@ const communityMark = communityConfig.name.split(/\s+/).slice(0, 2).map((word) =
       <div class="home-reveal mx-auto max-w-5xl text-center">
         <h2 id="closing-title" class="text-4xl font-bold leading-[1.03] tracking-[-0.04em] text-white sm:text-5xl lg:text-6xl">{home.closingStatement}</h2>
         <p class="mx-auto mt-6 max-w-xl text-lg leading-8 text-braga-100">{home.closingBody}</p>
-        <a href={whatsappUrl} class="btn-primary mt-9 w-full sm:w-auto" target="_blank" rel="noreferrer noopener">Join the WhatsApp Community</a>
+        <button type="button" data-whatsapp-join class="btn-primary mt-9 w-full sm:w-auto">Join the WhatsApp Community</button>
       </div>
     </section>
   </div>

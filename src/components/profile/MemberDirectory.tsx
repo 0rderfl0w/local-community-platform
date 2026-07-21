@@ -5,7 +5,6 @@ import { isAnonymousUser } from '@/lib/anonymous';
 import { useAuthUser } from '@/components/auth/useAuthUser';
 import type { PublicProfile } from '@/lib/types';
 import ProfileCard from './ProfileCard';
-import { communityConfig } from '@/config/community';
 
 export default function MemberDirectory() {
   const { user, loading: authLoading } = useAuthUser();
@@ -39,7 +38,7 @@ export default function MemberDirectory() {
 
   return (
     <div className="space-y-6">
-      {showMemberCta && <a className="btn-primary inline-flex" href={communityConfig.whatsappUrl} target="_blank" rel="noreferrer noopener">Join WhatsApp Community</a>}
+      {showMemberCta && <button type="button" data-whatsapp-join className="btn-primary inline-flex">Join WhatsApp Community</button>}
       {profiles.length ? <div className="grid gap-5 md:grid-cols-2">{profiles.map((profile) => <ProfileCard key={profile.handle ?? profile.display_name} profile={profile} />)}</div> : <div className="card p-6 text-braga-100">No public member profiles yet.</div>}
     </div>
   );

@@ -13,7 +13,6 @@ import {
   type PostParticipationSettings
 } from '@/lib/postParticipation';
 import RipTaxonomyPicker from './RipTaxonomyPicker';
-import { communityConfig } from '@/config/community';
 import MagicLinkSteps from '@/components/auth/MagicLinkSteps';
 import { useRetryCountdown } from '@/components/auth/useRetryCountdown';
 import ComposerMagicLinkStatus from './ComposerMagicLinkStatus';
@@ -236,7 +235,7 @@ export default function IdeaComposer({ tagCatalog, tagCatalogLoading, tagCatalog
                   Post anonymously
                 </label>
                 {!signedIn && participationReady && anonymousPostsAllowed && signedOutPostsAllowed && <p className="mt-2 text-xs leading-5 text-braga-300">
-                  Membership is invite-only. <a className="font-bold text-limewash hover:underline" href={communityConfig.whatsappUrl} target="_blank" rel="noreferrer noopener">Join the WhatsApp community</a> or ask someone you know who’s already a member for an invite. <button type="button" className="font-bold text-limewash hover:underline" onClick={startSignInFlow}>Already a member? Sign in</button>.
+                  Membership is invite-only. <button type="button" data-whatsapp-join className="font-bold text-limewash hover:underline">Join the WhatsApp community</button> or ask someone you know who’s already a member for an invite. <button type="button" className="font-bold text-limewash hover:underline" onClick={startSignInFlow}>Already a member? Sign in</button>.
                 </p>}
                 {!signedIn && participationReady && !signedOutPostsAllowed && <p className="mt-2 text-xs leading-5 text-amber-100">Posting while signed out is disabled. Sign in to share this post.</p>}
                 {!signedIn && participationReady && signedOutPostsAllowed && !anonymousPostsAllowed && <p className="mt-2 text-xs leading-5 text-amber-100">Anonymous posting is disabled. Sign in to share this post with your profile.</p>}

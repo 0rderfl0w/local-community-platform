@@ -72,7 +72,7 @@ export default function InviteEmailForm({ code, mode }: Props) {
         <aside className="rounded-xl border border-limewash/35 bg-limewash/[0.08] p-4">
           <p className="text-base font-black text-white">New here?</p>
           <p className="mt-1 text-sm leading-6 text-braga-100">
-            Get an invite from a friend who’s already a member, or <a className="font-bold text-limewash underline decoration-limewash/40 underline-offset-4 hover:decoration-limewash" href={communityConfig.whatsappUrl} target="_blank" rel="noreferrer noopener">join the WhatsApp community</a>.
+            Get an invite from a friend who’s already a member, or <button type="button" data-whatsapp-join className="font-bold text-limewash underline decoration-limewash/40 underline-offset-4 hover:decoration-limewash">join the WhatsApp community</button>.
           </p>
         </aside>
       )}

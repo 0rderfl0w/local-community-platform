@@ -341,7 +341,8 @@ describe('launch frontend contracts', () => {
     const footer = await read('src/components/Footer.astro');
     expect(home).toContain('See Posts');
     expect(home).toContain('Join the WhatsApp Community');
-    expect(home).toContain('communityConfig.whatsappUrl');
+    expect(home.match(/data-whatsapp-join/g)).toHaveLength(2);
+    expect(home).not.toContain('communityConfig.whatsappUrl');
     expect(config).toContain('https://chat.whatsapp.com/GwhqmjtwcPT4vVmQmqqIRW');
     expect(config).toContain('https://github.com/richkapp/local-community-platform');
     expect(config).toContain("tagline: 'A local AI community'");
@@ -363,7 +364,8 @@ describe('launch frontend contracts', () => {
     expect(authStatus).not.toContain('Use private invite');
     expect(authStatus).toContain('Sign In');
     expect(members).toContain('Join WhatsApp Community');
-    expect(members).toContain('communityConfig.whatsappUrl');
+    expect(members).toContain('data-whatsapp-join');
+    expect(members).not.toContain('communityConfig.whatsappUrl');
     expect(config).not.toContain('memberInviteCode');
     expect(config).not.toContain('memberInvitePath');
     expect(footer).toContain('This site is powered by');
@@ -421,7 +423,8 @@ describe('launch frontend contracts', () => {
     expect(tabs).toContain('<InviteEmailForm mode="signin" />');
     expect(tabs).toContain('Join the community');
     expect(tabs).toContain('Ask a friend');
-    expect(tabs).toContain('href={communityConfig.whatsappUrl}');
+    expect(tabs).toContain('data-whatsapp-join');
+    expect(tabs).not.toContain('href={communityConfig.whatsappUrl}');
     expect(tabs).toContain("['ArrowLeft', 'ArrowRight', 'Home', 'End']");
     expect(form).toContain("{ mode: 'invite'; code: string } | { mode: 'signin'; code?: never }");
     expect(form).toContain('requestMagicLink');
@@ -447,7 +450,8 @@ describe('launch frontend contracts', () => {
     expect(form).toContain("I agree to receive the magic link to sign in,{' '}");
     expect(form).toContain('Get an invite from a friend who’s already a member');
     expect(form).toContain('join the WhatsApp community');
-    expect(form).toContain('href={communityConfig.whatsappUrl}');
+    expect(form).toContain('data-whatsapp-join');
+    expect(form).not.toContain('href={communityConfig.whatsappUrl}');
     expect(form).toContain('border-limewash/35 bg-limewash/[0.08]');
     expect(form).not.toContain('sent through Supabase');
     expect(form).toContain('emailConsent: true');
@@ -457,7 +461,8 @@ describe('launch frontend contracts', () => {
     expect(composer).toContain('Join the WhatsApp community');
     expect(composer).toContain('ask someone you know who’s already a member for an invite');
     expect(composer).not.toContain('Anonymous posting is required while signed out.');
-    expect(composer).toContain('href={communityConfig.whatsappUrl}');
+    expect(composer).toContain('data-whatsapp-join');
+    expect(composer).not.toContain('href={communityConfig.whatsappUrl}');
     expect(composer).not.toContain('Create account and post');
     expect(composer).toContain('Sign in to finish your post');
     expect(composer).toContain('MagicLinkSteps');
