@@ -2,6 +2,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import InviteEmailForm from '../../components/auth/InviteEmailForm';
 import { communityConfig, communityPageTitle } from '../../config/community';
+import { socialCardPath } from '../../lib/socialCards';
 
 export const prerender = false;
 
@@ -9,7 +10,12 @@ const code = Astro.params.code ?? '';
 const validCode = /^[a-z0-9][a-z0-9-]{3,80}$/.test(code);
 if (!validCode) Astro.response.status = 404;
 ---
-<BaseLayout title={communityPageTitle('You’re invited')} description={`You’ve been invited to join ${communityConfig.name}. Create your account or sign in with a magic link.`}>
+<BaseLayout
+  title={communityPageTitle('You’re invited')}
+  description={`You’ve been invited to join ${communityConfig.name}. Create your account or sign in with a magic link.`}
+  socialImage={socialCardPath('invite')}
+  socialImageAlt={`Private invitation to join ${communityConfig.name}`}
+>
   <section class="mx-auto max-w-2xl px-4 py-20 sm:px-6 lg:px-8">
     {validCode ? (
       <>

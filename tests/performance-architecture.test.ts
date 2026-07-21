@@ -21,7 +21,8 @@ describe('performance architecture contracts', () => {
       'src/pages/join/[code].astro',
       'src/pages/ideas/[slug].astro',
       'src/pages/ideas.astro',
-      'src/pages/api/event-preview.ts'
+      'src/pages/api/event-preview.ts',
+      'src/pages/api/social-card.png.ts'
     ]) {
       expect(await read(route)).toContain('export const prerender = false');
     }

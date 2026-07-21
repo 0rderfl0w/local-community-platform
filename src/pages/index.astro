@@ -1,12 +1,18 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { communityConfig } from '../config/community';
+import { socialCardPath } from '../lib/socialCards';
 
 const whatsappUrl = communityConfig.whatsappUrl;
 const home = communityConfig.home;
 const communityMark = communityConfig.name.split(/\s+/).slice(0, 2).map((word) => word[0]).join('').toUpperCase();
 ---
-<BaseLayout title={`${communityConfig.name} · ${communityConfig.tagline}`} description={communityConfig.description}>
+<BaseLayout
+  title={`${communityConfig.name} · ${communityConfig.tagline}`}
+  description={communityConfig.description}
+  socialImage={socialCardPath('home')}
+  socialImageAlt={`${communityConfig.name}: ${communityConfig.tagline}`}
+>
   <div class="home-page overflow-hidden">
     <section class="home-hero relative isolate flex min-h-[calc(100dvh-73px)] items-end overflow-hidden border-b border-white/10" aria-labelledby="home-hero-title">
       {home.heroImage.src && <img
