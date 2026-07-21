@@ -10,7 +10,9 @@ export const AVATAR_SOURCE_MAX_DIMENSION = 12_000;
 export const AVATAR_SOURCE_MAX_PIXELS = 25_000_000;
 export const AVATAR_OUTPUT_SIZE = 384;
 
-const supportedSourceTypes = new Set(['image/jpeg', 'image/png', 'image/webp']);
+const supportedSourceTypes = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif', 'image/heic-sequence', 'image/heif-sequence']);
+const heicSourceTypes = new Set(['image/heic', 'image/heif', 'image/heic-sequence', 'image/heif-sequence']);
+const genericSourceTypes = new Set(['', 'application/octet-stream']);
 const compressionQualities = [0.82, 0.72, 0.62, 0.52, 0.42];
 
 export type AvatarState = {
@@ -32,9 +34,14 @@ type AvatarDisplayFields = {
   updated_at?: string | null;
 };
 
-export function validateAvatarFile(file: Pick<File, 'size' | 'type'>) {
-  if (!supportedSourceTypes.has(file.type)) {
-    throw new Error('Choose a JPEG, PNG, or WebP image.');
+export function isHeicAvatarFile(file: Pick<File, 'name' | 'type'>) {
+  if (heicSourceTypes.has(file.type.toLowerCase())) return true;
+  return genericSourceTypes.has(file.type.toLowerCase()) && /\.hei[cf]$/i.test(file.name);
+}
+
+export function validateAvatarFile(file: Pick<File, 'name' | 'size' | 'type'>) {
+  if (!supportedSourceTypes.has(file.type.toLowerCase()) && !isHeicAvatarFile(file)) {
+    throw new Error('Choose a JPEG, PNG, WebP, HEIC, or HEIF image.');
   }
   if (file.size > AVATAR_SOURCE_MAX_BYTES) {
     throw new Error(`Choose an image that is ${AVATAR_SOURCE_MAX_LABEL} or smaller.`);
@@ -65,32 +72,63 @@ function canvasToBlob(canvas: HTMLCanvasElement, quality: number) {
   });
 }
 
-async function loadImage(file: File) {
-  const objectUrl = URL.createObjectURL(file);
+async function loadImage(source: Blob) {
+  const objectUrl = URL.createObjectURL(source);
   const image = new Image();
   image.decoding = 'async';
   image.src = objectUrl;
   try {
     await image.decode();
-    return { image, objectUrl };
+    return {
+      source: image as CanvasImageSource,
+      width: image.naturalWidth,
+      height: image.naturalHeight,
+      release: () => URL.revokeObjectURL(objectUrl)
+    };
   } catch {
     URL.revokeObjectURL(objectUrl);
     throw new Error('This image could not be read. Try another file.');
   }
 }
 
+async function convertHeicToBitmap(file: File) {
+  try {
+    const { heicTo, isHeic } = await import('heic-to/csp');
+    if (!(await isHeic(file))) throw new Error('The file does not contain a HEIC image.');
+    const bitmap = await heicTo({ blob: file, type: 'bitmap' });
+    return {
+      source: bitmap as CanvasImageSource,
+      width: bitmap.width,
+      height: bitmap.height,
+      release: () => bitmap.close()
+    };
+  } catch (caught) {
+    console.error('[avatar-heic-conversion]', caught);
+    throw new Error('This HEIC photo could not be read. Try exporting it as JPEG.');
+  }
+}
+
+async function loadAvatarImage(file: File) {
+  try {
+    return await loadImage(file);
+  } catch (caught) {
+    if (!isHeicAvatarFile(file)) throw caught;
+    return convertHeicToBitmap(file);
+  }
+}
+
 export async function prepareAvatarImage(file: File) {
   validateAvatarFile(file);
-  const { image, objectUrl } = await loadImage(file);
+  const loaded = await loadAvatarImage(file);
   try {
-    const crop = calculateSquareCrop(image.naturalWidth, image.naturalHeight);
+    const crop = calculateSquareCrop(loaded.width, loaded.height);
     const canvas = document.createElement('canvas');
     canvas.width = AVATAR_OUTPUT_SIZE;
     canvas.height = AVATAR_OUTPUT_SIZE;
     const context = canvas.getContext('2d');
     if (!context) throw new Error('This browser could not prepare the image. Try another file.');
     context.drawImage(
-      image,
+      loaded.source,
       crop.sourceX,
       crop.sourceY,
       crop.sourceSize,
@@ -108,7 +146,7 @@ export async function prepareAvatarImage(file: File) {
     }
     throw new Error('This image stays too large after compression. Try a simpler photo.');
   } finally {
-    URL.revokeObjectURL(objectUrl);
+    loaded.release();
   }
 }
 

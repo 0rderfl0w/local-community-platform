@@ -64,7 +64,7 @@ export default function SignInTabs() {
         tabIndex={0}
       >
         {activeTab === 'signin' ? (
-          <InviteEmailForm mode="signin" />
+          <InviteEmailForm mode="signin" onSignUp={() => chooseTab('signup', true)} />
         ) : (
           <div className="card overflow-hidden p-6 sm:p-7">
             <p className="text-xs font-black uppercase tracking-[0.18em] text-limewash">Invite-only membership</p>

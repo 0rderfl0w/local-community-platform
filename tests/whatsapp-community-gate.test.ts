@@ -46,7 +46,6 @@ describe('WhatsApp community rules gate', () => {
     const layout = await read('src/layouts/BaseLayout.astro');
     const entrypointPaths = [
       'src/pages/index.astro',
-      'src/components/auth/InviteEmailForm.tsx',
       'src/components/auth/SignInTabs.tsx',
       'src/components/profile/MemberDirectory.tsx',
       'src/components/ideas/IdeaComposer.tsx'
@@ -56,7 +55,7 @@ describe('WhatsApp community rules gate', () => {
 
     expect(layout).toContain("import WhatsAppJoinGate from '../components/WhatsAppJoinGate.astro'");
     expect(layout).toContain('<WhatsAppJoinGate />');
-    expect(combined.match(/data-whatsapp-join/g)).toHaveLength(6);
+    expect(combined.match(/data-whatsapp-join/g)).toHaveLength(5);
     expect(combined).not.toContain('href={communityConfig.whatsappUrl}');
     expect(combined).not.toContain('href={whatsappUrl}');
     expect(combined).not.toContain('chat.whatsapp.com');

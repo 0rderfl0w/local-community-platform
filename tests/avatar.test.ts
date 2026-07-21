@@ -1,21 +1,36 @@
 import { describe, expect, test } from 'bun:test';
-import { calculateSquareCrop, validateAvatarFile } from '@/lib/avatar';
+import { calculateSquareCrop, isHeicAvatarFile, validateAvatarFile } from '@/lib/avatar';
 
 const mebibyte = 1024 * 1024;
 
-function fakeFile(type: string, size: number) {
-  return { type, size, name: 'avatar' } as File;
+function fakeFile(type: string, size: number, name = 'avatar') {
+  return { type, size, name } as File;
 }
 
 describe('native avatar preparation', () => {
   test('accepts supported source images at the 10 MB boundary', () => {
-    for (const type of ['image/jpeg', 'image/png', 'image/webp']) {
+    for (const type of ['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif', 'image/heic-sequence', 'image/heif-sequence']) {
       expect(() => validateAvatarFile(fakeFile(type, 10 * mebibyte))).not.toThrow();
     }
   });
 
+  test('recognizes iPhone HEIC and HEIF files when browsers omit a useful MIME type', () => {
+    for (const file of [
+      fakeFile('image/heic', 1000, 'portrait.heic'),
+      fakeFile('image/heif', 1000, 'portrait.heif'),
+      fakeFile('image/heic-sequence', 1000, 'live-photo.heic'),
+      fakeFile('image/heif-sequence', 1000, 'live-photo.heif'),
+      fakeFile('', 1000, 'portrait.HEIC'),
+      fakeFile('application/octet-stream', 1000, 'portrait.heif')
+    ]) {
+      expect(isHeicAvatarFile(file)).toBe(true);
+      expect(() => validateAvatarFile(file)).not.toThrow();
+    }
+    expect(isHeicAvatarFile(fakeFile('image/png', 1000, 'portrait.png'))).toBe(false);
+  });
+
   test('rejects unsupported or oversized source images', () => {
-    expect(() => validateAvatarFile(fakeFile('image/svg+xml', 1000))).toThrow('JPEG, PNG, or WebP');
+    expect(() => validateAvatarFile(fakeFile('image/svg+xml', 1000, 'avatar.svg'))).toThrow('JPEG, PNG, WebP, HEIC, or HEIF');
     expect(() => validateAvatarFile(fakeFile('image/png', 10 * mebibyte + 1))).toThrow('10 MB or smaller');
   });
 

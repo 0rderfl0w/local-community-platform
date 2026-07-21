@@ -92,7 +92,7 @@ export default function AvatarUploader({ expectedUserId, identityGeneration, pro
       setMessage('Photo updated.');
     } catch (caught) {
       if (!mountedRef.current || operationRef.current !== operation) return;
-      const message = caught instanceof Error && caught.message.startsWith('Choose an image')
+      const message = caught instanceof Error && (caught.message.startsWith('Choose an image') || caught.message.startsWith('This HEIC photo'))
         ? caught.message
         : toUserMessage('avatar-upload', caught);
       setError(message);
@@ -138,7 +138,7 @@ export default function AvatarUploader({ expectedUserId, identityGeneration, pro
         />
         <div className="min-w-0 flex-1">
           <h2 className="text-base font-semibold text-white">Profile photo</h2>
-          <p className="mt-1 text-sm leading-6 text-braga-100">JPEG, PNG, or WebP. Maximum {AVATAR_SOURCE_MAX_LABEL}. We crop it square and compress it before upload.</p>
+          <p className="mt-1 text-sm leading-6 text-braga-100">JPEG, PNG, WebP, HEIC, or HEIF. Maximum {AVATAR_SOURCE_MAX_LABEL}. We crop it square and compress it before upload.</p>
           <p className="mt-1 text-xs leading-5 text-braga-200">Uploaded photos are public files and appear anywhere your public member profile is shown.</p>
           <div className="mt-4 flex flex-wrap gap-3">
             <label className={`btn-secondary inline-flex cursor-pointer items-center gap-2 ${busy ? 'pointer-events-none opacity-60' : ''}`}>
@@ -149,7 +149,7 @@ export default function AvatarUploader({ expectedUserId, identityGeneration, pro
                 type="file"
                 className="sr-only"
                 aria-label="Choose profile photo"
-                accept="image/jpeg,image/png,image/webp"
+                accept="image/jpeg,image/png,image/webp,image/heic,image/heif,image/heic-sequence,image/heif-sequence,.heic,.heif"
                 disabled={Boolean(busy)}
                 onChange={(event) => void choosePhoto(event.target.files?.[0])}
               />

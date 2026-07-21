@@ -5,9 +5,9 @@ import { communityConfig } from '@/config/community';
 import MagicLinkSteps from './MagicLinkSteps';
 import { useRetryCountdown } from './useRetryCountdown';
 
-type Props = { mode: 'invite'; code: string } | { mode: 'signin'; code?: never };
+type Props = { mode: 'invite'; code: string; onSignUp?: never } | { mode: 'signin'; code?: never; onSignUp: () => void };
 
-export default function InviteEmailForm({ code, mode }: Props) {
+export default function InviteEmailForm({ code, mode, onSignUp }: Props) {
   const [email, setEmail] = useState('');
   const [emailConsent, setEmailConsent] = useState(false);
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
@@ -69,11 +69,9 @@ export default function InviteEmailForm({ code, mode }: Props) {
       </button>
       {message && <p className={status === 'error' ? 'error-message' : 'status-message'} role={status === 'error' ? 'alert' : 'status'} aria-live="polite">{message}</p>}
       {mode === 'signin' && (
-        <aside className="rounded-xl border border-limewash/35 bg-limewash/[0.08] p-4">
+        <aside className="flex min-h-14 items-center justify-between gap-4 rounded-xl border border-limewash/35 bg-limewash/[0.08] px-4 py-3">
           <p className="text-base font-black text-white">New here?</p>
-          <p className="mt-1 text-sm leading-6 text-braga-100">
-            Get an invite from a friend who’s already a member, or <button type="button" data-whatsapp-join className="font-bold text-limewash underline decoration-limewash/40 underline-offset-4 hover:decoration-limewash">join the WhatsApp community</button>.
-          </p>
+          <button type="button" className="shrink-0 font-black text-limewash underline decoration-limewash/40 underline-offset-4 hover:text-white hover:decoration-limewash focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-limewash" onClick={onSignUp}>Sign Up →</button>
         </aside>
       )}
     </form>
