@@ -11,11 +11,15 @@ type Props = {
   initialBookmarked?: boolean;
   access: BookmarkAccess;
   onChange?: (bookmarked: boolean) => void;
+  variant?: 'default' | 'feed';
 };
 
-const controlClass = 'inline-flex h-11 w-11 items-center justify-center rounded-full border transition focus:outline-none focus:ring-2 focus:ring-limewash/70';
+const defaultControlClass = 'inline-flex h-11 w-11 items-center justify-center rounded-full border transition focus:outline-none focus:ring-2 focus:ring-limewash/70';
 
-export default function BookmarkButton({ ideaId, title, initialBookmarked = false, access, onChange }: Props) {
+export default function BookmarkButton({ ideaId, title, initialBookmarked = false, access, onChange, variant = 'default' }: Props) {
+  const controlClass = variant === 'feed'
+    ? 'inline-flex h-11 w-11 items-center justify-center rounded-full border border-transparent transition hover:bg-white/[0.07] focus:outline-none focus:ring-2 focus:ring-limewash/70'
+    : defaultControlClass;
   const [bookmarked, setBookmarked] = useState(initialBookmarked);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -26,7 +30,7 @@ export default function BookmarkButton({ ideaId, title, initialBookmarked = fals
     return (
       <a
         href="/signin"
-        className={`${controlClass} border-braga-300/30 text-braga-200 hover:border-limewash/70 hover:text-limewash`}
+        className={`${controlClass} ${variant === 'feed' ? 'text-braga-200 hover:text-limewash' : 'border-braga-300/30 text-braga-200 hover:border-limewash/70 hover:text-limewash'}`}
         aria-label={`Sign in to bookmark ${title}`}
         title="Sign in to bookmark"
       >
@@ -39,7 +43,7 @@ export default function BookmarkButton({ ideaId, title, initialBookmarked = fals
     return (
       <button
         type="button"
-        className={`${controlClass} cursor-not-allowed border-braga-300/20 text-braga-300/60`}
+        className={`${controlClass} cursor-not-allowed ${variant === 'feed' ? 'text-braga-300/60' : 'border-braga-300/20 text-braga-300/60'}`}
         aria-label={`Member access required to bookmark ${title}`}
         title="Member access is not active"
         disabled
@@ -69,7 +73,7 @@ export default function BookmarkButton({ ideaId, title, initialBookmarked = fals
     <span className="relative inline-flex">
       <button
         type="button"
-        className={`${controlClass} ${bookmarked ? 'border-limewash/60 bg-limewash/15 text-limewash' : 'border-braga-300/30 text-braga-200 hover:border-limewash/70 hover:text-limewash'}`}
+        className={`${controlClass} ${bookmarked ? `${variant === 'feed' ? '' : 'border-limewash/60'} bg-limewash/15 text-limewash` : variant === 'feed' ? 'text-braga-200 hover:text-limewash' : 'border-braga-300/30 text-braga-200 hover:border-limewash/70 hover:text-limewash'}`}
         onClick={() => void setBookmark()}
         disabled={saving}
         aria-label={label}

@@ -14,7 +14,7 @@ export default function BugReportLauncher() {
   if (!loaded) {
     return (
       <button type="button" onClick={() => setLoaded(true)} className="hover:text-limewash">
-        🐞 Report a Bug
+        Report a bug
       </button>
     );
   }

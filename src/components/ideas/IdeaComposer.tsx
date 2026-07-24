@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { LuPlus, LuX } from 'react-icons/lu';
+import { communityConfig } from '@/config/community';
 import type { FormSubmitEvent } from '@/lib/dom';
 import { createIdea, type IdeaPostingMode } from '@/lib/ideas';
 import type { PostTagCatalogItem, RipCategory, RipTag } from '@/lib/types';
@@ -13,7 +14,9 @@ import {
   type PostParticipationSettings
 } from '@/lib/postParticipation';
 import RipTaxonomyPicker from './RipTaxonomyPicker';
-import { communityConfig } from '@/config/community';
+import MagicLinkSteps from '@/components/auth/MagicLinkSteps';
+import { useRetryCountdown } from '@/components/auth/useRetryCountdown';
+import ComposerMagicLinkStatus from './ComposerMagicLinkStatus';
 
 type ComposerStage = 'form' | 'email' | 'sent';
 type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
@@ -42,7 +45,9 @@ export default function IdeaComposer({ tagCatalog, tagCatalogLoading, tagCatalog
   const [stage, setStage] = useState<ComposerStage>('form');
   const [status, setStatus] = useState<SaveStatus>('idle');
   const [message, setMessage] = useState('');
+  const [emailError, setEmailError] = useState('');
   const [emailBusy, setEmailBusy] = useState(false);
+  const { retrySeconds, startRetryCountdown } = useRetryCountdown();
 
   useEffect(() => {
     const draft = loadIdeaDraft();
@@ -52,9 +57,11 @@ export default function IdeaComposer({ tagCatalog, tagCatalogLoading, tagCatalog
       setCategory(draft.category);
       setTags(draft.tags);
     }
-    if (new URL(window.location.href).searchParams.get('restoreIdea') !== '1') return;
+    const currentUrl = new URL(window.location.href);
+    if (currentUrl.searchParams.get('restoreIdea') !== '1') return;
 
-    window.history.replaceState(window.history.state, document.title, '/posts');
+    currentUrl.searchParams.delete('restoreIdea');
+    window.history.replaceState(window.history.state, document.title, `${currentUrl.pathname}${currentUrl.search}${currentUrl.hash}`);
     if (!draft) {
       setMessage('No saved post was found on this browser. Start a new post when you are ready.');
       return;
@@ -86,6 +93,7 @@ export default function IdeaComposer({ tagCatalog, tagCatalogLoading, tagCatalog
   function open() {
     setStage('form');
     setAnonymousChoice(null);
+    setEmailError('');
     if (status !== 'saved') setMessage('');
     setStatus('idle');
     dialogRef.current?.showModal();
@@ -135,23 +143,32 @@ export default function IdeaComposer({ tagCatalog, tagCatalogLoading, tagCatalog
     saveIdeaDraft(title.trim(), body.trim(), category, tags);
     setEmailConsent(false);
     setMessage('');
+    setEmailError('');
     setStage('email');
   }
 
-  async function sendSignInLink(event: FormSubmitEvent) {
-    event.preventDefault(); setMessage('');
+  async function requestComposerSignInLink() {
+    setEmailError('');
     if (!emailConsent) {
-      setMessage('Please agree to receive the one-time magic-link email.');
+      setEmailError('Tick the box so we can send your email link.');
       return;
     }
     setEmailBusy(true);
     try {
       saveIdeaDraft(title.trim(), body.trim(), category, tags);
-      await requestIdeaSignIn(email);
+      const responseMessage = await requestIdeaSignIn(email);
+      setMessage(responseMessage);
+      setEmailError('');
+      startRetryCountdown();
       setStage('sent');
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : 'Could not send the sign-in link.');
+      setEmailError(error instanceof Error ? error.message : 'Could not send the sign-in link.');
     } finally { setEmailBusy(false); }
+  }
+
+  async function sendSignInLink(event: FormSubmitEvent) {
+    event.preventDefault();
+    await requestComposerSignInLink();
   }
 
   const anonymousPostsAllowed = settings.allow_anonymous_posts;
@@ -184,7 +201,7 @@ export default function IdeaComposer({ tagCatalog, tagCatalogLoading, tagCatalog
             <div>
               <p className="text-xs font-black uppercase tracking-[0.18em] text-limewash">Community post</p>
               <h2 id="post-composer-title" className="mt-2 text-2xl font-black text-white">
-                {stage === 'form' ? 'Create a new post' : stage === 'email' ? 'Existing member sign in' : 'Check your email'}
+                {stage === 'form' ? 'Create a new post' : stage === 'email' ? 'Sign in to finish your post' : 'Request received'}
               </h2>
             </div>
             <button type="button" className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-braga-300/25 text-braga-100 transition hover:border-limewash/70 hover:text-limewash" onClick={close} aria-label="Close post composer" disabled={status === 'saving' || emailBusy}>
@@ -219,7 +236,7 @@ export default function IdeaComposer({ tagCatalog, tagCatalogLoading, tagCatalog
                   Post anonymously
                 </label>
                 {!signedIn && participationReady && anonymousPostsAllowed && signedOutPostsAllowed && <p className="mt-2 text-xs leading-5 text-braga-300">
-                  Anonymous posting is required while signed out. <button type="button" className="font-bold text-limewash hover:underline" onClick={startSignInFlow}>Sign in</button> or <a className="font-bold text-limewash hover:underline" href={communityConfig.whatsappUrl} target="_blank" rel="noreferrer">create an account</a> with a member invitation to share this in your name.
+                  Membership is invite-only. {communityConfig.communityChannel.enabled ? <><button type="button" data-community-join className="font-bold text-limewash hover:underline">{communityConfig.communityChannel.joinLabel}</button> or ask</> : <>Ask</>} someone you know who’s already a member for an invite. <button type="button" className="font-bold text-limewash hover:underline" onClick={startSignInFlow}>Already a member? Sign in</button>.
                 </p>}
                 {!signedIn && participationReady && !signedOutPostsAllowed && <p className="mt-2 text-xs leading-5 text-amber-100">Posting while signed out is disabled. Sign in to share this post.</p>}
                 {!signedIn && participationReady && signedOutPostsAllowed && !anonymousPostsAllowed && <p className="mt-2 text-xs leading-5 text-amber-100">Anonymous posting is disabled. Sign in to share this post with your profile.</p>}
@@ -238,24 +255,33 @@ export default function IdeaComposer({ tagCatalog, tagCatalogLoading, tagCatalog
 
           {stage === 'email' && (
             <form onSubmit={sendSignInLink} className="mt-6">
-              <p className="text-sm leading-6 text-braga-100">Your post is saved in this browser while we email your existing member account a one-time magic link.</p>
+              <p className="text-sm leading-6 text-braga-100">Your post is saved here.</p>
+              <MagicLinkSteps className="mt-5" />
               <label className="label mt-6 block" htmlFor="idea-email">Email address</label>
               <input id="idea-email" className="input mt-2" type="email" value={email} onChange={(event) => setEmail(event.target.value)} autoComplete="email" required autoFocus />
               <label className="mt-4 flex cursor-pointer items-start gap-3 rounded-xl border border-braga-300/20 bg-white/[0.025] p-4 text-sm leading-6 text-braga-100">
                 <input type="checkbox" className="mt-1 h-4 w-4 shrink-0 accent-limewash" checked={emailConsent} onChange={(event) => setEmailConsent(event.target.checked)} required disabled={emailBusy} />
-                <span>I agree to receive a one-time magic-link email sent through Supabase. My email address will never be used for marketing.</span>
+                <span>
+                  I agree to receive the magic link to sign in,{' '}
+                  <a className="font-semibold text-limewash underline decoration-limewash/40 underline-offset-2 hover:text-white" href="/terms">Terms and Conditions</a>
+                  {' '}and{' '}
+                  <a className="font-semibold text-limewash underline decoration-limewash/40 underline-offset-2 hover:text-white" href="/privacy">Privacy Policy</a>.
+                </span>
               </label>
-              <p className="mt-3 text-xs leading-5 text-braga-300">Use of this site is subject to our <a className="font-semibold text-limewash hover:underline" href="/terms">Terms and Conditions</a>. See the <a className="font-semibold text-limewash hover:underline" href="/privacy">Privacy Policy</a> for how account data is handled.</p>
-              <div className="mt-6 grid gap-3"><button className="btn-primary" disabled={emailBusy || !emailConsent}>{emailBusy ? 'Sending…' : 'Email me the magic link'}</button><button type="button" className="px-4 py-2 text-sm text-braga-200 hover:text-white disabled:cursor-not-allowed disabled:opacity-50" onClick={() => setStage('form')} disabled={emailBusy}>Back</button></div>
-              {message && <p className="error-message mt-4" role="alert">{message}</p>}
+              <div className="mt-6 grid gap-3"><button className="btn-primary" disabled={emailBusy || !emailConsent}>{emailBusy ? 'Sending…' : 'Send sign-in link'}</button><button type="button" className="px-4 py-2 text-sm text-braga-200 hover:text-white disabled:cursor-not-allowed disabled:opacity-50" onClick={() => setStage('form')} disabled={emailBusy}>Back</button></div>
+              {emailError && <p className="error-message mt-4" role="alert">{emailError}</p>}
             </form>
           )}
 
           {stage === 'sent' && (
-            <div className="mt-6">
-              <p className="leading-7 text-braga-100">If that email belongs to a {communityConfig.name} member, open the newest magic link to sign in and return here with the post restored.</p>
-              <button type="button" className="btn-primary mt-6 w-full" onClick={close}>Done</button>
-            </div>
+            <ComposerMagicLinkStatus
+              message={message}
+              error={emailError}
+              emailBusy={emailBusy}
+              retrySeconds={retrySeconds}
+              onRetry={() => void requestComposerSignInLink()}
+              onDone={close}
+            />
           )}
         </div>
       </dialog>

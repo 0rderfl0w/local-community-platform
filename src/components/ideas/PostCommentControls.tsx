@@ -1,5 +1,6 @@
 import { useEffect, useId, useState } from 'react';
 import { LuArrowUp, LuGhost, LuReply, LuUser } from 'react-icons/lu';
+import { communityConfig } from '@/config/community';
 import type { FormSubmitEvent } from '@/lib/dom';
 import { toUserMessage } from '@/lib/errors';
 import type { PostCommentNode } from '@/lib/postComments';
@@ -31,7 +32,7 @@ function CommentAuthorIdentity({ comment }: { comment: PostCommentNode }) {
         ? <a className="inline-flex items-center gap-2 hover:text-limewash" href={`/members/${encodeURIComponent(profile.handle)}`}>{identity}</a>
         : <span className="inline-flex items-center gap-2">{identity}</span>}
       <span aria-hidden="true">•</span>
-      <time dateTime={comment.created_at}>{new Date(comment.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</time>
+      <time dateTime={comment.created_at}>{new Date(comment.created_at).toLocaleDateString(communityConfig.locale, { day: '2-digit', month: 'short', year: 'numeric' })}</time>
     </div>
   );
 }

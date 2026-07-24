@@ -13,6 +13,8 @@ Do not deploy when this command fails.
 
 ## Supabase
 
+Before enabling production sign-in or invitations, configure **Authentication → Emails → SMTP Settings** with a custom transactional SMTP provider. Supabase's built-in mailer is best-effort and limited to two messages per hour. After saving custom SMTP, set an appropriate project-wide email limit under **Authentication → Rate Limits** and verify one controlled existing-member delivery. Keep SMTP credentials in Supabase configuration only; never commit them.
+
 For a fresh installation whose migration history exactly matches this repository:
 
 ```bash

@@ -89,7 +89,7 @@ describe('ProfileForm draft safety', () => {
     pendingProfiles.push(initial);
     const view = render(<ProfileForm />);
 
-    initial.resolve(profile('account-a', 'Saved profile'));
+    await act(async () => { initial.resolve(profile('account-a', 'Saved profile')); });
     const displayName = await view.findByLabelText('Display name') as HTMLInputElement;
     fireEvent.change(displayName, { target: { value: 'Unsaved profile draft' } });
 
@@ -111,10 +111,10 @@ describe('ProfileForm draft safety', () => {
     view.rerender(<ProfileForm />);
     await waitFor(() => expect(profileFetches).toBe(2));
 
-    accountB.resolve(profile('account-b', 'Account B'));
+    await act(async () => { accountB.resolve(profile('account-b', 'Account B')); });
     await view.findByDisplayValue('Account B');
 
-    accountA.resolve(profile('account-a', 'Account A'));
+    await act(async () => { accountA.resolve(profile('account-a', 'Account A')); });
     await waitFor(() => expect(view.getByLabelText('Display name')).toHaveProperty('value', 'Account B'));
   });
 
@@ -126,7 +126,7 @@ describe('ProfileForm draft safety', () => {
     pendingSaves.push(saveA);
     const view = render(<ProfileForm />);
 
-    accountA.resolve(profile('account-a', 'Account A'));
+    await act(async () => { accountA.resolve(profile('account-a', 'Account A')); });
     const displayName = await view.findByLabelText('Display name') as HTMLInputElement;
     fireEvent.change(displayName, { target: { value: 'Account A draft' } });
     fireEvent.submit(view.container.querySelector('form')!);
@@ -135,7 +135,7 @@ describe('ProfileForm draft safety', () => {
 
     authState = { user: { id: 'account-b' }, loading: false };
     view.rerender(<ProfileForm />);
-    accountB.resolve(profile('account-b', 'Account B'));
+    await act(async () => { accountB.resolve(profile('account-b', 'Account B')); });
     await view.findByDisplayValue('Account B');
 
     await act(async () => { saveA.resolve(profile('account-a', 'Saved Account A')); });
@@ -151,7 +151,7 @@ describe('ProfileForm draft safety', () => {
     pendingProfiles.push(accountA, accountB);
     const view = render(<ProfileForm />);
 
-    accountA.resolve(profile('account-a', 'Account A'));
+    await act(async () => { accountA.resolve(profile('account-a', 'Account A')); });
     const displayName = await view.findByLabelText('Display name') as HTMLInputElement;
     fireEvent.change(displayName, { target: { value: 'Account A draft' } });
     const accountAForm = view.container.querySelector('form')!;
@@ -163,7 +163,7 @@ describe('ProfileForm draft safety', () => {
     fireEvent.submit(accountAForm);
     expect(profileSaves).toBe(0);
 
-    accountB.resolve(profile('account-b', 'Account B'));
+    await act(async () => { accountB.resolve(profile('account-b', 'Account B')); });
     await view.findByDisplayValue('Account B');
   });
 });

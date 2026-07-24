@@ -47,7 +47,7 @@ export default function BugReportDialog({ openOnMount = false }: { openOnMount?:
 
   return (
     <>
-      <button type="button" onClick={open} className="hover:text-limewash">🐞 Report a Bug</button>
+      <button type="button" onClick={open} className="hover:text-limewash">Report a bug</button>
       <dialog
         ref={dialogRef}
         aria-labelledby="bug-report-title"

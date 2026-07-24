@@ -1,7 +1,8 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import InviteEmailForm from '../../components/auth/InviteEmailForm';
-import { communityPageTitle } from '../../config/community';
+import { communityConfig, communityPageTitle } from '../../config/community';
+import { socialCardPath } from '../../lib/socialCards';
 
 export const prerender = false;
 
@@ -9,13 +10,19 @@ const code = Astro.params.code ?? '';
 const validCode = /^[a-z0-9][a-z0-9-]{3,80}$/.test(code);
 if (!validCode) Astro.response.status = 404;
 ---
-<BaseLayout title={communityPageTitle('Private invite')}>
+<BaseLayout
+  title={communityPageTitle('You’re invited')}
+  description={`You’ve been invited to join ${communityConfig.name}. Create your account or sign in with a magic link.`}
+  socialImage={socialCardPath('invite')}
+  socialImageAlt={`Private invitation to join ${communityConfig.name}`}
+>
   <section class="mx-auto max-w-2xl px-4 py-20 sm:px-6 lg:px-8">
     {validCode ? (
       <>
-        <p class="text-sm font-bold uppercase tracking-[0.2em] text-limewash">Private invite</p>
-        <h1 class="mt-4 text-4xl font-bold">Sign in or create your account</h1>
-        <p class="mt-4 text-braga-100">It is the same passwordless process. Enter your email and we’ll send a one-time magic link.</p>
+        <p class="text-sm font-bold uppercase tracking-[0.2em] text-limewash">You’re invited</p>
+        <h1 class="mt-4 text-4xl font-black text-white">Welcome to {communityConfig.name}</h1>
+        <p class="mt-4 max-w-xl text-base leading-7 text-braga-100">{communityConfig.description}</p>
+        <p class="mt-5 text-lg font-bold leading-7 text-white">Create your account—or sign in—using a magic link.</p>
         <div class="mt-8">
           <InviteEmailForm code={code} mode="invite" client:load />
         </div>

@@ -1,17 +1,14 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import InviteEmailForm from '../components/auth/InviteEmailForm';
+import SignInTabs from '../components/auth/SignInTabs';
 import { communityConfig, communityPageTitle } from '../config/community';
 ---
-<BaseLayout title={communityPageTitle('Sign in')} description={`Sign in to your existing ${communityConfig.name} account with one magic link.`}>
+<BaseLayout title={communityPageTitle('Member access')} description={`Sign in to ${communityConfig.name} or get a private invitation to join.`}>
   <section class="mx-auto max-w-2xl px-4 py-20 sm:px-6 lg:px-8">
-    <p class="text-sm font-bold uppercase tracking-[0.2em] text-limewash">Passwordless access</p>
-    <h1 class="mt-4 text-4xl font-black text-white">Existing member sign in</h1>
-    <p class="mt-4 max-w-xl text-lg leading-8 text-braga-100">
-      Enter the email attached to your member account and we’ll send a one-time magic link. New members need an invitation URL shared by a member or organizer.
-    </p>
+    <p class="text-sm font-bold uppercase tracking-[0.2em] text-limewash">{communityConfig.name}</p>
+    <h1 class="mt-4 text-4xl font-black text-white">Member access</h1>
     <div class="mt-8">
-      <InviteEmailForm mode="signin" client:load />
+      <SignInTabs client:load />
     </div>
   </section>
 </BaseLayout>

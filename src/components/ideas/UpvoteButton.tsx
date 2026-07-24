@@ -8,9 +8,10 @@ type Props = {
   initialCount: number;
   initialVoted?: boolean;
   disabled?: boolean;
+  variant?: 'default' | 'feed';
 };
 
-export default function UpvoteButton({ ideaId, initialCount, initialVoted = false, disabled = false }: Props) {
+export default function UpvoteButton({ ideaId, initialCount, initialVoted = false, disabled = false, variant = 'default' }: Props) {
   const [count, setCount] = useState(initialCount);
   const [voted, setVoted] = useState(() => initialVoted || hasAnonymousVote(ideaId));
   const [busy, setBusy] = useState(false);
@@ -30,11 +31,17 @@ export default function UpvoteButton({ ideaId, initialCount, initialVoted = fals
     }
   }
 
+  const buttonClass = variant === 'feed'
+    ? voted
+      ? 'inline-flex min-h-11 items-center justify-center rounded-full bg-limewash/10 px-3 text-sm font-semibold text-limewash transition hover:bg-limewash/15 disabled:cursor-not-allowed disabled:opacity-60'
+      : 'inline-flex min-h-11 items-center justify-center rounded-full px-3 text-sm font-semibold text-braga-100 transition hover:bg-white/[0.07] hover:text-white disabled:cursor-not-allowed disabled:opacity-60'
+    : voted ? 'btn-primary' : 'btn-secondary';
+
   return (
     <div className="flex shrink-0 flex-col items-center gap-2">
       <button
         type="button"
-        className={voted ? 'btn-primary' : 'btn-secondary'}
+        className={buttonClass}
         disabled={busy || disabled}
         onClick={click}
         aria-pressed={voted}

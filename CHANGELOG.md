@@ -2,6 +2,23 @@
 
 ## Unreleased
 
+## 0.2.0 — 2026-07-24
+
+Authentication and invitation clarity:
+
+- Added accessible Sign In and Sign Up tabs, clearer private-invitation routes, and a direct new-member handoff from the sign-in form.
+- Added explicit magic-link delivery states, resend countdowns, provider-safe error handling, and clearer recovery guidance when an email is delayed or blocked.
+- Improved invited-member onboarding and made signed-out posting explain when a private member invitation is required.
+
+Community experience and media:
+
+- Added a redesigned, configuration-driven landing page with optional hero and membership imagery; no downstream branding assets are bundled upstream.
+- Added saved post filters, exact return navigation from post detail, and an author-first mobile feed with compact management controls.
+- Raised profile-photo intake to 10 MB and added HEIC/HEIF conversion for iPhone photos while preserving the existing compressed WebP output boundary; a bounded ISO-BMFF parser rejects malformed, sequence, multi-image, and oversized inputs before decoding.
+- Added an optional, provider-neutral community-channel rules gate, disabled until configured, whose destination, labels, rules, eligibility language, and consent copy live in `src/config/community.ts`.
+- Added route-aware Open Graph and Twitter cards for the home page, invitations, posts, events, and member profiles using a theme-neutral generated design; non-canonical cache-busting requests are rejected, missing records return 404, and record revisions invalidate edited-content cards.
+- Derived public document language, Open Graph locale, comment dates, and event-card dates from installation configuration.
+
 Repository governance and downstream separation:
 
 - Established Local Community Platform as the canonical theme-neutral upstream and moved the live Braga deployment source to `richkapp/braga-ai-builders`.
@@ -26,6 +43,9 @@ Performance and delivery hardening:
 - Skipped organizer checks for signed-out visitors and lazy-loaded the bug-report dialog.
 - Preserved Astro ClientRouter history metadata and closed persisted overlays during navigation.
 - Added focused frontend, migration, performance-architecture, output-manifest, and authorization contracts for the new boundaries.
+- Updated Astro, Vercel, and social-card dependencies and pinned patched transitive versions; the production dependency audit is clean.
+- Removed active Braga callback and channel destinations from tracked template defaults, replaced the branded favicon, and standardized Edge Function environment names.
+- Added LGPL/GPL license texts, exact corresponding-source links, and rebuild/relinking instructions for the browser HEIC decoder and its bundled libheif build.
 
 ## 0.1.2 — 2026-07-11
 

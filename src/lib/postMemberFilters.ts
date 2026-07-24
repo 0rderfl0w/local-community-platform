@@ -6,7 +6,8 @@ export type PostMemberFilterOption = {
   postCount: number;
 };
 
-export type PostFeedView = 'all' | 'mine' | 'bookmarks';
+export const POST_FEED_VIEWS = ['all', 'mine', 'bookmarks'] as const;
+export type PostFeedView = typeof POST_FEED_VIEWS[number];
 
 export function scopeIdeasToPostView(ideas: Idea[], view: PostFeedView) {
   if (view === 'mine') return ideas.filter((idea) => idea.viewer_is_author);

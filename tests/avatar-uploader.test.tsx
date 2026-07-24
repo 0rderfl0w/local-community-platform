@@ -63,6 +63,8 @@ describe('AvatarUploader identity and persistence behavior', () => {
     const onChange = (_identity: string, _generation: number, avatar: AvatarState) => changes.push(avatar);
     const view = render(<AvatarUploader expectedUserId="account-a" identityGeneration={1} profile={profile()} operations={operations} onAvatarChange={onChange} />);
 
+    expect(view.getByText(/Maximum 10 MB/)).toBeTruthy();
+
     fireEvent.change(view.getByLabelText('Choose profile photo'), {
       target: { files: [new File(['photo'], 'photo.png', { type: 'image/png' })] }
     });

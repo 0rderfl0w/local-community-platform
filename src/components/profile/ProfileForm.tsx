@@ -12,6 +12,7 @@ import { isAnonymousUser } from '@/lib/anonymous';
 import { FaGithub, FaLinkedinIn, FaXTwitter } from 'react-icons/fa6';
 import { LuEye, LuGlobe } from 'react-icons/lu';
 import AvatarUploader from './AvatarUploader';
+import { PROFILE_HANDLE_HELP, PROFILE_HANDLE_MAX_LENGTH, PROFILE_HANDLE_PATTERN_SOURCE } from '@/lib/profileHandle';
 
 const emptyProfile: Partial<EditableProfileRecord> = {
   handle: '',
@@ -169,8 +170,8 @@ export default function ProfileForm() {
         </div>
         <div>
           <label className="label" htmlFor="handle">Handle</label>
-          <input id="handle" className="input mt-2" value={profile.handle ?? ''} onChange={(event) => setField('handle', event.target.value.toLowerCase())} pattern="[a-z0-9](?:[a-z0-9]|-){2,39}" maxLength={40} placeholder="ana-builder" />
-          <p className="mt-2 text-xs text-braga-200">3–40 lowercase letters, numbers, or hyphens.</p>
+          <input id="handle" className="input mt-2" value={profile.handle ?? ''} onChange={(event) => setField('handle', event.target.value.toLowerCase())} pattern={PROFILE_HANDLE_PATTERN_SOURCE} maxLength={PROFILE_HANDLE_MAX_LENGTH} placeholder="ana-builder" />
+          <p className="mt-2 text-xs text-braga-200">{PROFILE_HANDLE_HELP}</p>
         </div>
       </div>
       <div>

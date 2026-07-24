@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { LuArrowLeft } from 'react-icons/lu';
 import { supabase } from '@/lib/supabase';
 import { toUserMessage } from '@/lib/errors';
 import { attachPublicAuthors, getMyPostRelationships } from '@/lib/ideas';
@@ -12,6 +13,7 @@ import BookmarkButton, { type BookmarkAccess } from './BookmarkButton';
 import PostComments from './PostComments';
 import SharePostButton from './SharePostButton';
 import { usePostTagCatalog } from './usePostTagCatalog';
+import { POSTS_RETURN_STORAGE_KEY, safePostFeedPath } from '@/lib/postFeedNavigation';
 
 type Props = { slug: string };
 type VoteCountRow = { upvote_count: number };
@@ -23,6 +25,15 @@ export default function IdeaDetail({ slug }: Props) {
   const [bookmarkAccess, setBookmarkAccess] = useState<BookmarkAccess>('signed-out');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [postsHref, setPostsHref] = useState('/posts');
+
+  useEffect(() => {
+    try {
+      setPostsHref(safePostFeedPath(window.sessionStorage.getItem(POSTS_RETURN_STORAGE_KEY)));
+    } catch {
+      setPostsHref('/posts');
+    }
+  }, []);
 
   useEffect(() => {
     async function load() {
@@ -96,10 +107,16 @@ export default function IdeaDetail({ slug }: Props) {
 
   if (loading) return <p className="card p-6 text-braga-100" role="status">Loading post…</p>;
   if (error) return <p className="error-message" role="alert">{error}</p>;
-  if (!idea) return <div className="card p-6"><h1 className="text-2xl font-semibold">Post not found</h1><a href="/posts" className="mt-4 inline-flex text-limewash">Back to posts</a></div>;
+  if (!idea) return <div className="card p-6"><h1 className="text-2xl font-semibold">Post not found</h1><a href={postsHref} className="mt-4 inline-flex text-limewash">Back to posts</a></div>;
 
   return (
     <div className="space-y-8">
+      <nav aria-label="Post navigation">
+        <a href={postsHref} className="inline-flex min-h-11 items-center gap-2 rounded-full border border-braga-300/30 px-4 text-sm font-bold text-braga-100 transition hover:border-limewash/70 hover:text-limewash focus:outline-none focus:ring-2 focus:ring-limewash/70">
+          <LuArrowLeft className="h-4 w-4" aria-hidden="true" />
+          Back to posts
+        </a>
+      </nav>
       <article className="card relative flex flex-col gap-4 p-5 sm:flex-row sm:gap-5 sm:p-6">
         <UpvoteButton ideaId={idea.id} initialCount={idea.upvote_count ?? 0} initialVoted={idea.viewer_has_voted ?? false} disabled={idea.status === 'closed'} />
         <div className="min-w-0 max-w-3xl pr-0 sm:pr-28">

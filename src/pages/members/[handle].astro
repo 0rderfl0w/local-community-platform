@@ -1,18 +1,36 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import MemberProfile from '../../components/profile/MemberProfile';
-import { communityPageTitle } from '../../config/community';
-import { publicRecordExists } from '../../lib/public-server';
+import { communityConfig, communityPageTitle } from '../../config/community';
+import { publicRecordLookup } from '../../lib/public-server';
+import { normalizeSocialText, normalizeSocialTitle, socialCardPath, type MemberCardRecord } from '../../lib/socialCards';
 
 export const prerender = false;
 
 const handle = Astro.params.handle ?? '';
-const exists = /^[a-z0-9][a-z0-9-]{2,39}$/.test(handle)
-  ? await publicRecordExists('public_profiles', 'handle', handle)
-  : false;
-if (exists === false) Astro.response.status = 404;
+const validHandle = /^[a-z0-9][a-z0-9-]{2,39}$/.test(handle);
+const lookup = validHandle
+  ? await publicRecordLookup<MemberCardRecord>('public_profiles', 'handle', handle, 'handle,display_name,bio,avatar_updated_at')
+  : { available: true, data: null };
+const member = lookup.data;
+if (!validHandle || (lookup.available && !member)) Astro.response.status = 404;
+
+const title = member ? communityPageTitle(member.display_name) : communityPageTitle('Member');
+const description = member
+  ? normalizeSocialText(member.bio, 180) || `${member.display_name} is a member of ${communityConfig.name}.`
+  : `A member profile from ${communityConfig.name}.`;
+const socialImageAlt = member
+  ? `${normalizeSocialTitle(member.display_name, 72)}, a member of ${communityConfig.name}`
+  : `Community member from ${communityConfig.name}`;
+const socialImage = member ? socialCardPath('member', handle, member.avatar_updated_at) : socialCardPath('members');
 ---
-<BaseLayout title={communityPageTitle('Member')}>
+<BaseLayout
+  title={title}
+  description={description}
+  socialImage={socialImage}
+  socialImageAlt={socialImageAlt}
+  socialType="profile"
+>
   <section class="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8">
     <a class="text-sm font-semibold text-limewash" href="/members">← All members</a>
     <div class="mt-6">

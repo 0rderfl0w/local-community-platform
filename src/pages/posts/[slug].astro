@@ -1,18 +1,36 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import IdeaDetail from '../../components/ideas/IdeaDetail';
-import { communityPageTitle } from '../../config/community';
-import { publicRecordExists } from '../../lib/public-server';
+import { communityConfig, communityPageTitle } from '../../config/community';
+import { publicRecordLookup } from '../../lib/public-server';
+import { normalizeSocialText, normalizeSocialTitle, socialCardPath, type PostCardRecord } from '../../lib/socialCards';
 
 export const prerender = false;
 
 const slug = Astro.params.slug ?? '';
-const exists = /^[a-z0-9][a-z0-9-]{2,159}$/.test(slug)
-  ? await publicRecordExists('ideas', 'slug', slug)
-  : false;
-if (exists === false) Astro.response.status = 404;
+const validSlug = /^[a-z0-9][a-z0-9-]{2,159}$/.test(slug);
+const lookup = validSlug
+  ? await publicRecordLookup<PostCardRecord>('ideas', 'slug', slug, 'slug,title,body,category,updated_at')
+  : { available: true, data: null };
+const post = lookup.data;
+if (!validSlug || (lookup.available && !post)) Astro.response.status = 404;
+
+const title = post ? communityPageTitle(post.title) : communityPageTitle('Post');
+const description = post
+  ? normalizeSocialText(post.body, 180) || `A community post from ${communityConfig.name}.`
+  : `Read a community post from ${communityConfig.name}.`;
+const socialImageAlt = post
+  ? `${normalizeSocialTitle(post.title, 120)}, a community post from ${communityConfig.name}`
+  : `Community post from ${communityConfig.name}`;
+const socialImage = post ? socialCardPath('post', slug, post.updated_at) : socialCardPath('posts');
 ---
-<BaseLayout title={communityPageTitle('Post')}>
+<BaseLayout
+  title={title}
+  description={description}
+  socialImage={socialImage}
+  socialImageAlt={socialImageAlt}
+  socialType="article"
+>
   <section class="mx-auto max-w-5xl px-4 py-16 sm:px-6 lg:px-8">
     <IdeaDetail slug={slug} client:load />
   </section>

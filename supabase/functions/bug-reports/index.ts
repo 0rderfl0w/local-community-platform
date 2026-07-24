@@ -96,8 +96,8 @@ async function apiRequest<T>(supabaseUrl: string, path: string, body: Record<str
 }
 
 Deno.serve(async (request) => {
-  const supabaseUrl = Deno.env.get('SUPABASE_URL') || Deno.env.get('BRAGA_SUPABASE_URL') || '';
-  const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || Deno.env.get('BRAGA_SUPABASE_SERVICE_ROLE_KEY') || '';
+  const supabaseUrl = Deno.env.get('SUPABASE_URL') || '';
+  const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
   const redirectTo = Deno.env.get('INVITE_REDIRECT_URL') || '';
   if (!supabaseUrl || !serviceRoleKey || !redirectTo) {
     return new Response(JSON.stringify({ error: 'Bug reporting is not configured.' }), {
