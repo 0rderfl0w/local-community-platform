@@ -2,6 +2,22 @@
 
 ## Unreleased
 
+## 0.2.0 — 2026-07-24
+
+Authentication and invitation clarity:
+
+- Added accessible Sign In and Sign Up tabs, clearer private-invitation routes, and a direct new-member handoff from the sign-in form.
+- Added explicit magic-link delivery states, resend countdowns, provider-safe error handling, and clearer recovery guidance when an email is delayed or blocked.
+- Improved invited-member onboarding and made signed-out posting explain when a private member invitation is required.
+
+Community experience and media:
+
+- Added a redesigned, configuration-driven landing page with optional hero and membership imagery; no downstream branding assets are bundled upstream.
+- Added saved post filters, exact return navigation from post detail, and an author-first mobile feed with compact management controls.
+- Raised profile-photo intake to 10 MB and added HEIC/HEIF conversion for iPhone photos while preserving the existing compressed WebP output boundary.
+- Added a global WhatsApp rules gate whose community rules, eligibility language, and consent copy live in `src/config/community.ts`.
+- Added route-aware Open Graph and Twitter cards for the home page, invitations, posts, events, and member profiles using a theme-neutral generated design.
+
 Repository governance and downstream separation:
 
 - Established Local Community Platform as the canonical theme-neutral upstream and moved the live Braga deployment source to `richkapp/braga-ai-builders`.
