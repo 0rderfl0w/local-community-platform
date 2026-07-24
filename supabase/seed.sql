@@ -1,6 +1,12 @@
 -- Local development data only. Production migrations do not execute seed.sql.
 -- Use a deliberately non-production code so screenshots/docs never normalize a
 -- shared community invite.
+-- The event insert intentionally uses the trigger's explicit service-role
+-- maintenance path; ordinary direct SQL remains fail-closed.
+begin;
+
+select set_config('request.jwt.claims', '{"role":"service_role"}', true);
+
 insert into public.invites (code, label, max_uses)
 values ('local-development-only', 'Local development invite', 50)
 on conflict (code) do update
@@ -27,3 +33,5 @@ values (
   'published'
 )
 on conflict (slug) do nothing;
+
+commit;

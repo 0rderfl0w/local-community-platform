@@ -138,6 +138,7 @@ describe('launch frontend contracts', () => {
     const adminPage = await read('src/pages/admin/voting.astro');
     const adminDashboard = await read('src/components/admin/AdminDashboard.tsx');
     const manager = await read('src/components/admin/VotingManager.tsx');
+    const settings = await read('src/components/admin/CommunityFeatureSettings.tsx');
     const client = await read('src/lib/voting.ts');
     expect(page).toContain('VotingBoard client:load');
     expect(board).toContain('Live results');
@@ -160,11 +161,10 @@ describe('launch frontend contracts', () => {
     expect(client).toContain("rpc('submit_community_ballot'");
     expect(adminPage).toContain('mode="voting"');
     expect(adminDashboard).toContain("mode === 'voting'");
-    expect(manager).toContain('role="switch"');
-    expect(manager).toContain('Voting public visibility');
-    expect(manager).toContain('setVotingFeatureEnabled');
-    expect(manager).toContain('const visibilitySequence = useRef(0)');
-    expect(manager).toContain('visibilityBusy || loading || busy || votingEnabled === null');
+    expect(settings).toContain('role="switch"');
+    expect(settings).toContain('setVotingFeatureEnabled');
+    expect(manager).toContain('Manage feature availability in Settings');
+    expect(manager).not.toContain('setVotingFeatureEnabled');
     expect(manager).toContain('Preview vote');
     expect(manager).toContain('Save draft');
     expect(manager).toContain('Publish vote');
@@ -175,10 +175,13 @@ describe('launch frontend contracts', () => {
   test('super admins control post participation modes', async () => {
     const dashboard = await read('src/components/admin/AdminDashboard.tsx');
     const moderator = await read('src/components/admin/IdeaModerator.tsx');
+    const settings = await read('src/components/admin/CommunityFeatureSettings.tsx');
     const manager = await read('src/components/admin/PostParticipationManager.tsx');
     const participation = await read('src/lib/postParticipation.ts');
-    expect(dashboard).toContain("isSuperAdmin={role === 'super_admin'}");
-    expect(moderator).toContain('isSuperAdmin && <PostParticipationManager />');
+    expect(dashboard).toContain("const isSuperAdmin = role === 'super_admin'");
+    expect(dashboard).toContain('<CommunityFeatureSettings />');
+    expect(settings).toContain('<PostParticipationManager />');
+    expect(moderator).not.toContain('PostParticipationManager');
     expect(manager).toContain('Allow anonymous posts');
     expect(manager).toContain('Allow posts from logged-out users');
     expect(manager).toContain('Allow anonymous comments');
@@ -639,7 +642,8 @@ describe('launch frontend contracts', () => {
       'src/components/admin/BugReportManager.tsx',
       'src/pages/admin/ideas.astro',
       'src/pages/admin/members.astro',
-      'src/pages/admin/bug-reports.astro'
+      'src/pages/admin/bug-reports.astro',
+      'src/pages/admin/settings.astro'
     ]) await access(new URL(path, root));
     const admin = await read('src/components/admin/AdminDashboard.tsx');
     const manager = await read('src/components/admin/BugReportManager.tsx');
@@ -653,7 +657,7 @@ describe('launch frontend contracts', () => {
     expect(manager).toContain('savingIds');
     expect(manager).not.toContain('mailto:');
     expect(admin).toContain("role === 'super_admin'");
-    expect(admin).toContain("isSuperAdmin={role === 'super_admin'}");
+    expect(admin).toContain('isSuperAdmin={isSuperAdmin}');
     expect(members).toContain('Make admin');
     expect(members).toContain('Suspend member');
     expect(members).toContain('Delete member');

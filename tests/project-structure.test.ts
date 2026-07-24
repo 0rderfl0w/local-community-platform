@@ -55,6 +55,7 @@ test('backup guidance covers every promoted persistent boundary', () => {
     'community_feature_flags',
     'avatars'
   ]) expect(guide).toContain(name);
+  expect(guide).toContain('migrations `001`–`038` in order');
 });
 
 test('deployment guide pins the immutable migration 023 artifact', () => {

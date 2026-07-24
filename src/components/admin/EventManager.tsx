@@ -4,9 +4,11 @@ import { createEvent, listAdminEvents, updateEventStatus } from '@/lib/admin';
 import { toUserMessage } from '@/lib/errors';
 import { slugWithRandomSuffix } from '@/lib/slug';
 import type { Event } from '@/lib/types';
+import { getEventCreationEnabled } from '@/lib/communityFeatures';
 
 export default function EventManager() {
   const [events, setEvents] = useState<Event[]>([]);
+  const [creationEnabled, setCreationEnabled] = useState<boolean | null>(null);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [startsAt, setStartsAt] = useState('');
@@ -20,7 +22,12 @@ export default function EventManager() {
     try { setEvents(await listAdminEvents()); }
     catch (caught) { setError(toUserMessage('admin-load', caught)); }
   }, []);
-  useEffect(() => { void load(); }, [load]);
+  useEffect(() => {
+    void load();
+    getEventCreationEnabled()
+      .then(setCreationEnabled)
+      .catch((caught) => setError(toUserMessage('admin-load', caught)));
+  }, [load]);
 
   async function submit(event: FormSubmitEvent) {
     event.preventDefault(); setBusy(true); setError(''); setMessage('');
@@ -49,7 +56,14 @@ export default function EventManager() {
 
   return (
     <div className="space-y-6">
-      <form onSubmit={submit} className="card grid gap-4 p-6 md:grid-cols-2" aria-busy={busy}>
+      {creationEnabled === null && !error && <p className="card p-6 text-braga-200" role="status">Checking event settings…</p>}
+      {creationEnabled === false && (
+        <section className="card p-6">
+          <h2 className="text-xl font-bold text-white">Event creation is off</h2>
+          <p className="mt-2 text-sm leading-6 text-braga-200">Existing events stay manageable. A super admin can enable new event creation in Settings.</p>
+        </section>
+      )}
+      {creationEnabled === true && <form onSubmit={submit} className="card grid gap-4 p-6 md:grid-cols-2" aria-busy={busy}>
         <div className="md:col-span-2"><h2 className="text-xl font-bold text-white">Add an event</h2><p className="mt-2 text-sm text-braga-200">Add the basics and the public event link. The card is published immediately.</p></div>
         <div><label className="label" htmlFor="event-title">Event name</label><input id="event-title" className="input mt-2" value={title} onChange={(event) => setTitle(event.target.value)} minLength={4} maxLength={140} required /></div>
         <div><label className="label" htmlFor="event-start">Date and time</label><input id="event-start" className="input mt-2" type="datetime-local" value={startsAt} onChange={(event) => setStartsAt(event.target.value)} required /></div>
@@ -57,7 +71,7 @@ export default function EventManager() {
         <div><label className="label" htmlFor="event-location">Location</label><input id="event-location" className="input mt-2" value={location} onChange={(event) => setLocation(event.target.value)} maxLength={160} required /></div>
         <div><label className="label" htmlFor="event-url">Event link</label><input id="event-url" className="input mt-2" type="url" value={eventUrl} onChange={(event) => setEventUrl(event.target.value)} placeholder="https://luma.com/…" required /></div>
         <button type="submit" className="btn-primary md:col-span-2" disabled={busy}>{busy ? 'Publishing…' : 'Publish event'}</button>
-      </form>
+      </form>}
 
       {message && <p className="status-message" role="status">{message}</p>}
       {error && <p className="error-message" role="alert">{error}</p>}
