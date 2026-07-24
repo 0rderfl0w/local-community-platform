@@ -6,7 +6,7 @@ import { socialCardPath } from '../../lib/socialCards';
 ---
 <BaseLayout
   title={communityPageTitle('Members')}
-  description="Public profiles from members who opted into the Braga AI Builders directory."
+  description={`Public profiles from members who opted into the ${communityConfig.name} directory.`}
   socialImage={socialCardPath('members')}
   socialImageAlt={`Members of ${communityConfig.name}`}
 >
