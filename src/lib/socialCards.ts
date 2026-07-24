@@ -18,36 +18,42 @@ export type PostCardRecord = Pick<Idea, 'slug' | 'title' | 'body' | 'category'>;
 export type EventCardRecord = Pick<Event, 'slug' | 'title' | 'starts_at' | 'location_name'>;
 export type MemberCardRecord = Pick<PublicProfile, 'handle' | 'display_name' | 'bio'>;
 
+const communityName = communityConfig.name || 'Local Community';
+const communityCity = communityConfig.city || 'the local area';
+const communityTagline = communityConfig.tagline || 'A local community';
+const communityDescription = communityConfig.description || `A home for ${communityName}.`;
+const communityTimeZone = communityConfig.timeZone || 'UTC';
+
 const presets: Record<Exclude<SocialCardKind, 'post' | 'event' | 'member'>, SocialCardData> = {
   home: {
-    label: communityConfig.home.eyebrow,
-    title: communityConfig.home.heroTitle,
-    description: communityConfig.home.closingStatement,
+    label: communityConfig.home?.eyebrow ?? communityTagline,
+    title: communityConfig.home?.heroTitle ?? communityName,
+    description: communityConfig.home?.closingStatement ?? communityDescription,
   },
   invite: {
     label: 'Private member invitation',
-    title: `You’re invited to ${communityConfig.name}`,
-    description: `Join ${communityConfig.name} and start sharing with your local community.`,
+    title: `You’re invited to ${communityName}`,
+    description: `Join ${communityName} and start sharing with your local community.`,
   },
   posts: {
     label: 'Community posts',
     title: 'Ideas worth keeping',
-    description: `Resources, perspectives, and useful things from ${communityConfig.name}.`,
+    description: `Resources, perspectives, and useful things from ${communityName}.`,
   },
   events: {
     label: 'Community events',
     title: 'Meet. Learn. Build.',
-    description: `Meetups and gatherings organized by ${communityConfig.name}.`,
+    description: `Meetups and gatherings organized by ${communityName}.`,
   },
   members: {
     label: 'Community directory',
-    title: `Meet ${communityConfig.name}`,
-    description: `Find the people behind the posts in ${communityConfig.city}.`,
+    title: `Meet ${communityName}`,
+    description: `Find the people behind the posts in ${communityCity}.`,
   },
   generic: {
-    label: communityConfig.tagline ?? 'A local AI community',
-    title: communityConfig.name,
-    description: communityConfig.description,
+    label: communityTagline,
+    title: communityName,
+    description: communityDescription,
   },
 };
 
@@ -77,9 +83,9 @@ export function socialCardPath(kind: SocialCardKind, identifier?: string) {
 }
 
 export function presetSocialCard(kind: SocialCardKind): SocialCardData {
-  if (kind === 'post') return { label: 'Community post', title: `A post from ${communityConfig.name}`, description: communityConfig.description };
-  if (kind === 'event') return { label: 'Community event', title: `An event from ${communityConfig.name}`, description: `Meetups and gatherings in ${communityConfig.city}.` };
-  if (kind === 'member') return { label: 'Community member', title: `A member of ${communityConfig.name}`, description: `Meet the people in ${communityConfig.name}.` };
+  if (kind === 'post') return { label: 'Community post', title: `A post from ${communityName}`, description: communityDescription };
+  if (kind === 'event') return { label: 'Community event', title: `An event from ${communityName}`, description: `Meetups and gatherings in ${communityCity}.` };
+  if (kind === 'member') return { label: 'Community member', title: `A member of ${communityName}`, description: `Meet the people in ${communityName}.` };
   return presets[kind];
 }
 
@@ -87,7 +93,7 @@ export function postSocialCard(record: PostCardRecord): SocialCardData {
   return {
     label: `Community ${ripCategoryLabel(record.category).toLowerCase()}`,
     title: normalizeSocialTitle(record.title, 120),
-    description: normalizeSocialText(record.body, 116) || `Shared with ${communityConfig.name}.`,
+    description: normalizeSocialText(record.body, 116) || `Shared with ${communityName}.`,
   };
 }
 
@@ -99,13 +105,13 @@ export function eventSocialCard(record: EventCardRecord): SocialCardData {
         day: 'numeric',
         month: 'long',
         year: 'numeric',
-        timeZone: communityConfig.timeZone,
+        timeZone: communityTimeZone,
       }).format(startsAt);
   const context = [date, normalizeSocialText(record.location_name, 56)].filter(Boolean).join(' at ');
   return {
     label: 'Community event',
     title: normalizeSocialTitle(record.title, 120),
-    description: context || `Meet with ${communityConfig.name}.`,
+    description: context || `Meet with ${communityName}.`,
   };
 }
 
@@ -113,7 +119,7 @@ export function memberSocialCard(record: MemberCardRecord): SocialCardData {
   return {
     label: 'Community member',
     title: normalizeSocialTitle(record.display_name, 72),
-    description: normalizeSocialText(record.bio, 116) || `A member of ${communityConfig.name}.`,
+    description: normalizeSocialText(record.bio, 116) || `A member of ${communityName}.`,
   };
 }
 

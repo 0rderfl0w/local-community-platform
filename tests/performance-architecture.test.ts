@@ -33,8 +33,9 @@ describe('performance architecture contracts', () => {
       'src/pages/members/[handle].astro'
     ]) {
       const source = await read(route);
-      expect(source.indexOf('.test(')).toBeLessThan(source.indexOf('await publicRecordExists'));
-      expect(source).toContain('if (exists === false) Astro.response.status = 404');
+      expect(source.indexOf('.test(')).toBeLessThan(source.indexOf('await publicRecordLookup'));
+      expect(source).toContain('lookup.available');
+      expect(source).toContain('Astro.response.status = 404');
     }
   });
 
