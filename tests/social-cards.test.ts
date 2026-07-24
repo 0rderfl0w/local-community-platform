@@ -2,12 +2,14 @@ import { describe, expect, test } from 'bun:test';
 import { access, readFile } from 'node:fs/promises';
 import {
   eventSocialCard,
+  isCurrentSocialCardRevision,
   memberSocialCard,
   normalizeSocialText,
   normalizeSocialTitle,
   postSocialCard,
   socialCardDescriptionSize,
   socialCardPath,
+  socialCardRevision,
   socialCardTitleSize,
 } from '@/lib/socialCards';
 import { validateSocialCardRequest } from '@/lib/socialCardRequest';
@@ -17,21 +19,29 @@ const read = (path: string) => readFile(new URL(path, root), 'utf8');
 
 describe('social sharing cards', () => {
   test('builds cache-versioned card URLs without leaking invite codes', () => {
+    const revision = '2026-07-24T12:34:56.789Z';
     expect(socialCardPath('home')).toBe('/api/social-card.png?kind=home&v=1');
-    expect(socialCardPath('post', 'useful-post')).toBe('/api/social-card.png?kind=post&v=1&slug=useful-post');
-    expect(socialCardPath('event', 'build-night')).toBe('/api/social-card.png?kind=event&v=1&slug=build-night');
-    expect(socialCardPath('member', 'richard')).toBe('/api/social-card.png?kind=member&v=1&handle=richard');
+    expect(socialCardPath('post', 'useful-post', revision)).toBe('/api/social-card.png?kind=post&v=1&slug=useful-post&rev=2026-07-24T12%3A34%3A56.789Z');
+    expect(socialCardPath('event', 'build-night', revision)).toContain('slug=build-night&rev=2026-07-24T12%3A34%3A56.789Z');
+    expect(socialCardPath('member', 'richard', revision)).toContain('handle=richard&rev=2026-07-24T12%3A34%3A56.789Z');
+    expect(socialCardRevision('2026-07-24T13:34:56.789+01:00')).toBe(revision);
+    expect(isCurrentSocialCardRevision(revision, revision)).toBe(true);
+    expect(isCurrentSocialCardRevision('2026-07-24T12:34:57.789Z', revision)).toBe(false);
+    expect(() => socialCardPath('post', 'useful-post')).toThrow('content revision');
     expect(socialCardPath('invite')).not.toContain('code');
   });
 
   test('rejects cache-bypass parameters and malformed identifiers before rendering', () => {
     const validate = (query: string) => validateSocialCardRequest(new URL(`https://community.example/api/social-card.png${query}`));
     expect(validate('?kind=home&v=1')).toEqual({ kind: 'home' });
-    expect(validate('?kind=post&v=1&slug=useful-post')).toEqual({ kind: 'post' });
-    expect(validate('?kind=member&v=1&handle=ana-martins')).toEqual({ kind: 'member' });
+    const revision = '2026-07-24T12:34:56.789Z';
+    expect(validate(`?kind=post&v=1&slug=useful-post&rev=${encodeURIComponent(revision)}`)).toEqual({ kind: 'post', revision });
+    expect(validate(`?kind=member&v=1&handle=ana-martins&rev=${encodeURIComponent(revision)}`)).toEqual({ kind: 'member', revision });
     expect(validate('?kind=generic&nonce=random')).toBeNull();
     expect(validate('?kind=home&v=999')).toBeNull();
     expect(validate('?kind=post&v=1&slug=BAD')).toBeNull();
+    expect(validate('?kind=post&v=1&slug=useful-post')).toBeNull();
+    expect(validate('?kind=post&v=1&slug=useful-post&rev=random')).toBeNull();
     expect(validate('?kind=home&kind=posts&v=1')).toBeNull();
   });
 
@@ -43,17 +53,17 @@ describe('social sharing cards', () => {
   });
 
   test('uses the shared content itself for post, event, and member cards', () => {
-    expect(postSocialCard({ slug: 'local-ai', title: 'Run AI locally', body: 'A practical setup for laptops without expensive subscriptions.', category: 'resource' })).toEqual({
+    expect(postSocialCard({ slug: 'local-ai', title: 'Run AI locally', body: 'A practical setup for laptops without expensive subscriptions.', category: 'resource', updated_at: '2026-07-24T12:34:56Z' })).toEqual({
       label: 'Community resource',
       title: 'Run AI locally',
       description: 'A practical setup for laptops without expensive subscriptions.',
     });
-    expect(eventSocialCard({ slug: 'build-night', title: 'Build Night', starts_at: '2026-08-12T18:00:00+01:00', location_name: 'Startup Braga' })).toEqual({
+    expect(eventSocialCard({ slug: 'build-night', title: 'Build Night', starts_at: '2026-08-12T18:00:00+01:00', location_name: 'Startup Braga', updated_at: '2026-07-24T12:34:56Z' })).toEqual({
       label: 'Community event',
       title: 'Build Night',
       description: '12 August 2026 at Startup Braga',
     });
-    expect(memberSocialCard({ handle: 'ana', display_name: 'Ana Martins', bio: 'Building useful automations for local teams.' })).toEqual({
+    expect(memberSocialCard({ handle: 'ana', display_name: 'Ana Martins', bio: 'Building useful automations for local teams.', avatar_updated_at: '2026-07-24T12:34:56Z' })).toEqual({
       label: 'Community member',
       title: 'Ana Martins',
       description: 'Building useful automations for local teams.',
@@ -107,9 +117,9 @@ describe('social sharing cards', () => {
     expect(endpoint).not.toContain("url.searchParams.get('description')");
     expect(home).toContain("socialCardPath('home')");
     expect(invite).toContain("socialCardPath('invite')");
-    expect(post).toContain("socialCardPath('post', slug)");
-    expect(event).toContain("socialCardPath('event', slug)");
-    expect(member).toContain("socialCardPath('member', handle)");
+    expect(post).toContain("socialCardPath('post', slug, post.updated_at)");
+    expect(event).toContain("socialCardPath('event', slug, event.updated_at)");
+    expect(member).toContain("socialCardPath('member', handle, member.avatar_updated_at)");
     expect(invite).not.toContain("socialCardPath('invite', code)");
   });
 });

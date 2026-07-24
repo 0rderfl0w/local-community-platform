@@ -25,6 +25,7 @@ describe('configurable community channel rules gate', () => {
       'adminAuthority',
       'minors'
     ]) expect(config).toContain(field);
+    expect(config).toContain('enabled: false');
   });
 
   test('requires both empty agreements before opening the configured channel', async () => {

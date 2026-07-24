@@ -6,6 +6,7 @@ import { publicRecordLookup } from '@/lib/public-server';
 import { validateSocialCardRequest } from '@/lib/socialCardRequest';
 import {
   eventSocialCard,
+  isCurrentSocialCardRevision,
   memberSocialCard,
   postSocialCard,
   presetSocialCard,
@@ -49,18 +50,21 @@ function assetBuffer(url: URL) {
 async function resolveCard(kind: SocialCardKind, url: URL): Promise<SocialCardData | null> {
   if (kind === 'post') {
     const slug = url.searchParams.get('slug') ?? '';
-    const record = await publicRecordLookup<PostCardRecord>('ideas', 'slug', slug, 'slug,title,body,category');
-    return record.data ? postSocialCard(record.data) : record.available ? null : presetSocialCard(kind);
+    const record = await publicRecordLookup<PostCardRecord>('ideas', 'slug', slug, 'slug,title,body,category,updated_at');
+    if (record.data && !isCurrentSocialCardRevision(record.data.updated_at, url.searchParams.get('rev'))) return null;
+    return record.data ? postSocialCard(record.data) : null;
   }
   if (kind === 'event') {
     const slug = url.searchParams.get('slug') ?? '';
-    const record = await publicRecordLookup<EventCardRecord>('events', 'slug', slug, 'slug,title,starts_at,location_name');
-    return record.data ? eventSocialCard(record.data) : record.available ? null : presetSocialCard(kind);
+    const record = await publicRecordLookup<EventCardRecord>('events', 'slug', slug, 'slug,title,starts_at,location_name,updated_at');
+    if (record.data && !isCurrentSocialCardRevision(record.data.updated_at, url.searchParams.get('rev'))) return null;
+    return record.data ? eventSocialCard(record.data) : null;
   }
   if (kind === 'member') {
     const handle = url.searchParams.get('handle') ?? '';
-    const record = await publicRecordLookup<MemberCardRecord>('public_profiles', 'handle', handle, 'handle,display_name,bio');
-    return record.data ? memberSocialCard(record.data) : record.available ? null : presetSocialCard(kind);
+    const record = await publicRecordLookup<MemberCardRecord>('public_profiles', 'handle', handle, 'handle,display_name,bio,avatar_updated_at');
+    if (record.data && !isCurrentSocialCardRevision(record.data.avatar_updated_at, url.searchParams.get('rev'))) return null;
+    return record.data ? memberSocialCard(record.data) : null;
   }
   return presetSocialCard(kind);
 }

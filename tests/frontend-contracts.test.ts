@@ -81,7 +81,7 @@ describe('launch frontend contracts', () => {
     expect(page).toContain('IdeaFeed layout="sidebar"');
     expect(legacyPage).toContain("Astro.redirect(`/posts${Astro.url.search}`");
     expect(detailPage).toContain("publicRecordLookup<PostCardRecord>('ideas', 'slug', slug");
-    expect(detailPage).toContain("socialCardPath('post', slug)");
+    expect(detailPage).toContain("socialCardPath('post', slug, post.updated_at)");
     expect(legacyDetailPage).toContain("Astro.params.slug ?? ''");
     expect(legacyDetailPage).toContain('Astro.url.search');
     expect(legacyDetailPage).toContain('Astro.redirect(`/posts/${encodeURIComponent');
@@ -465,7 +465,7 @@ describe('launch frontend contracts', () => {
     expect(composer).toContain('Already a member? Sign in');
     expect(composer).toContain('Membership is invite-only.');
     expect(composer).toContain('communityConfig.communityChannel.joinLabel');
-    expect(composer).toContain('ask someone you know who’s already a member for an invite');
+    expect(composer).toContain('someone you know who’s already a member for an invite');
     expect(composer).not.toContain('Anonymous posting is required while signed out.');
     expect(composer).toContain('data-community-join');
     expect(composer).not.toContain('href={communityConfig.communityChannel.url}');

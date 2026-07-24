@@ -1,4 +1,5 @@
 import { supabase } from './supabase';
+import { parseHeicMetadata } from './heicMetadata';
 import { verifiedProfileIdentity } from './profileIdentity';
 
 export const AVATAR_BUCKET = 'avatars';
@@ -52,31 +53,10 @@ export function validateAvatarFile(file: Pick<File, 'name' | 'size' | 'type'>) {
   }
 }
 
-export function heicPixelDimensions(buffer: ArrayBuffer) {
-  const view = new DataView(buffer);
-  const dimensions: Array<{ width: number; height: number }> = [];
-  for (let typeOffset = 4; typeOffset + 16 <= view.byteLength; typeOffset += 1) {
-    if (
-      view.getUint8(typeOffset) !== 0x69 ||
-      view.getUint8(typeOffset + 1) !== 0x73 ||
-      view.getUint8(typeOffset + 2) !== 0x70 ||
-      view.getUint8(typeOffset + 3) !== 0x65
-    ) continue;
-    const boxOffset = typeOffset - 4;
-    const boxSize = view.getUint32(boxOffset);
-    if (boxSize < 20 || boxOffset + boxSize > view.byteLength) continue;
-    const width = view.getUint32(typeOffset + 8);
-    const height = view.getUint32(typeOffset + 12);
-    if (width > 0 && height > 0) dimensions.push({ width, height });
-  }
-  return dimensions;
-}
-
 export function validateHeicMetadata(buffer: ArrayBuffer) {
-  const dimensions = heicPixelDimensions(buffer);
-  if (dimensions.length === 0) throw new Error('This HEIC photo has no readable size metadata.');
-  for (const { width, height } of dimensions) calculateSquareCrop(width, height);
-  return dimensions;
+  const metadata = parseHeicMetadata(buffer);
+  calculateSquareCrop(metadata.width, metadata.height);
+  return metadata;
 }
 
 export function calculateSquareCrop(width: number, height: number): SquareCrop {

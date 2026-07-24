@@ -1,11 +1,12 @@
 # Replacing and relinking the HEIC decoder
 
-Local Community Platform uses `heic-to` 1.5.2 for browser-side HEIC and HEIF decoding. `heic-to` bundles libheif 1.22.2. Both are distributed under the GNU Lesser General Public License v3.0 or later.
+Local Community Platform uses `heic-to` 1.5.2 for browser-side HEIC and HEIF decoding. `heic-to` bundles libheif 1.22.2 and libde265 1.0.16. These components are distributed under the GNU Lesser General Public License v3.0 or later.
 
 ## Corresponding source
 
 - `heic-to` 1.5.2: https://github.com/hoppergee/heic-to/tree/v1.5.2
 - libheif 1.22.2: https://github.com/strukturag/libheif/tree/v1.22.2
+- libde265 1.0.16: https://github.com/strukturag/libde265/tree/v1.0.16
 - `heic-to` build notes for its libheif browser build: https://github.com/hoppergee/heic-to/blob/v1.5.2/README.md#how-to-build-libheifjs-from-libheif-on-mac
 
 The exact application dependency is recorded in `package.json` and `bun.lock`. The application imports `heic-to/csp` from `src/lib/avatar.ts` without modifying the library.

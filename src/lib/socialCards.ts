@@ -14,9 +14,9 @@ export type SocialCardData = {
   description: string;
 };
 
-export type PostCardRecord = Pick<Idea, 'slug' | 'title' | 'body' | 'category'>;
-export type EventCardRecord = Pick<Event, 'slug' | 'title' | 'starts_at' | 'location_name'>;
-export type MemberCardRecord = Pick<PublicProfile, 'handle' | 'display_name' | 'bio'>;
+export type PostCardRecord = Pick<Idea, 'slug' | 'title' | 'body' | 'category' | 'updated_at'>;
+export type EventCardRecord = Pick<Event, 'slug' | 'title' | 'starts_at' | 'location_name' | 'updated_at'>;
+export type MemberCardRecord = Pick<PublicProfile, 'handle' | 'display_name' | 'bio'> & { avatar_updated_at: string };
 
 const communityName = communityConfig.name || 'Local Community';
 const communityCity = communityConfig.city || 'the local area';
@@ -76,10 +76,28 @@ export function normalizeSocialTitle(value: string | null | undefined, maxLength
   return normalizeText(value, maxLength, false);
 }
 
-export function socialCardPath(kind: SocialCardKind, identifier?: string) {
+export function socialCardRevision(updatedAt: string) {
+  const milliseconds = Date.parse(updatedAt);
+  if (!Number.isFinite(milliseconds)) throw new Error('Social card records require a valid updated_at timestamp.');
+  return new Date(milliseconds).toISOString();
+}
+
+export function isCurrentSocialCardRevision(updatedAt: string, requestedRevision: string | null) {
+  try {
+    return socialCardRevision(updatedAt) === requestedRevision;
+  } catch {
+    return false;
+  }
+}
+
+export function socialCardPath(kind: SocialCardKind, identifier?: string, revision?: string) {
   const search = new URLSearchParams({ kind, v: SOCIAL_CARD_VERSION });
   if (kind === 'post' || kind === 'event') search.set('slug', identifier ?? '');
   if (kind === 'member') search.set('handle', identifier ?? '');
+  if (kind === 'post' || kind === 'event' || kind === 'member') {
+    if (!revision) throw new Error('Dynamic social cards require a content revision.');
+    search.set('rev', socialCardRevision(revision));
+  }
   return `/api/social-card.png?${search.toString()}`;
 }
 

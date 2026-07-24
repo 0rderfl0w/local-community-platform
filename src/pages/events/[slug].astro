@@ -8,11 +8,11 @@ import type { Event } from '../../lib/types';
 
 export const prerender = false;
 
-type EventPageRecord = Pick<Event, 'slug' | 'title' | 'description' | 'starts_at' | 'location_name'>;
+type EventPageRecord = Pick<Event, 'slug' | 'title' | 'description' | 'starts_at' | 'location_name' | 'updated_at'>;
 const slug = Astro.params.slug ?? '';
 const validSlug = /^[a-z0-9][a-z0-9-]{2,159}$/.test(slug);
 const lookup = validSlug
-  ? await publicRecordLookup<EventPageRecord>('events', 'slug', slug, 'slug,title,description,starts_at,location_name')
+  ? await publicRecordLookup<EventPageRecord>('events', 'slug', slug, 'slug,title,description,starts_at,location_name,updated_at')
   : { available: true, data: null };
 const event = lookup.data;
 if (!validSlug || (lookup.available && !event)) Astro.response.status = 404;
@@ -24,11 +24,12 @@ const description = event
 const socialImageAlt = event
   ? `${normalizeSocialTitle(event.title, 120)}, an event from ${communityConfig.name}`
   : `Community event from ${communityConfig.name}`;
+const socialImage = event ? socialCardPath('event', slug, event.updated_at) : socialCardPath('events');
 ---
 <BaseLayout
   title={title}
   description={description}
-  socialImage={socialCardPath('event', slug)}
+  socialImage={socialImage}
   socialImageAlt={socialImageAlt}
   socialType="article"
 >

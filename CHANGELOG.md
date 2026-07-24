@@ -14,9 +14,9 @@ Community experience and media:
 
 - Added a redesigned, configuration-driven landing page with optional hero and membership imagery; no downstream branding assets are bundled upstream.
 - Added saved post filters, exact return navigation from post detail, and an author-first mobile feed with compact management controls.
-- Raised profile-photo intake to 10 MB and added HEIC/HEIF conversion for iPhone photos while preserving the existing compressed WebP output boundary; sequence MIME types and oversized HEIC pixel metadata are rejected before decoding.
-- Added an optional, provider-neutral community-channel rules gate whose destination, labels, rules, eligibility language, and consent copy live in `src/config/community.ts`.
-- Added route-aware Open Graph and Twitter cards for the home page, invitations, posts, events, and member profiles using a theme-neutral generated design; non-canonical cache-busting requests are rejected before lookup or rendering.
+- Raised profile-photo intake to 10 MB and added HEIC/HEIF conversion for iPhone photos while preserving the existing compressed WebP output boundary; a bounded ISO-BMFF parser rejects malformed, sequence, multi-image, and oversized inputs before decoding.
+- Added an optional, provider-neutral community-channel rules gate, disabled until configured, whose destination, labels, rules, eligibility language, and consent copy live in `src/config/community.ts`.
+- Added route-aware Open Graph and Twitter cards for the home page, invitations, posts, events, and member profiles using a theme-neutral generated design; non-canonical cache-busting requests are rejected, missing records return 404, and record revisions invalidate edited-content cards.
 - Derived public document language, Open Graph locale, comment dates, and event-card dates from installation configuration.
 
 Repository governance and downstream separation:

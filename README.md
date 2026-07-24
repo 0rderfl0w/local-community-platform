@@ -66,9 +66,9 @@ export const communityConfig = {
   tagline: 'A local community for shared interests',
   description: 'A short description of your community.',
   communityChannel: {
-    enabled: true,
+    enabled: false,
     providerName: 'Your chat provider',
-    url: 'https://your-provider.example/invite',
+    url: 'https://your-provider.example/invite', // enable only after replacing this value
     joinLabel: 'Join the community channel',
     openLabel: 'Agree and open the channel',
     name: 'Your local community channel',

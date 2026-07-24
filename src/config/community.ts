@@ -7,7 +7,7 @@ export const communityConfig = {
   tagline: 'A local AI community',
   description: 'A Braga community for people using AI to solve real problems, build useful things, and help each other move faster.',
   communityChannel: {
-    enabled: true,
+    enabled: false,
     providerName: 'WhatsApp',
     url: 'https://chat.whatsapp.com/YOUR_INVITE_CODE',
     joinLabel: 'Join the WhatsApp Community',

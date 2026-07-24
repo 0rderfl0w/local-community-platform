@@ -10,7 +10,7 @@ export const prerender = false;
 const handle = Astro.params.handle ?? '';
 const validHandle = /^[a-z0-9][a-z0-9-]{2,39}$/.test(handle);
 const lookup = validHandle
-  ? await publicRecordLookup<MemberCardRecord>('public_profiles', 'handle', handle, 'handle,display_name,bio')
+  ? await publicRecordLookup<MemberCardRecord>('public_profiles', 'handle', handle, 'handle,display_name,bio,avatar_updated_at')
   : { available: true, data: null };
 const member = lookup.data;
 if (!validHandle || (lookup.available && !member)) Astro.response.status = 404;
@@ -22,11 +22,12 @@ const description = member
 const socialImageAlt = member
   ? `${normalizeSocialTitle(member.display_name, 72)}, a member of ${communityConfig.name}`
   : `Community member from ${communityConfig.name}`;
+const socialImage = member ? socialCardPath('member', handle, member.avatar_updated_at) : socialCardPath('members');
 ---
 <BaseLayout
   title={title}
   description={description}
-  socialImage={socialCardPath('member', handle)}
+  socialImage={socialImage}
   socialImageAlt={socialImageAlt}
   socialType="profile"
 >
