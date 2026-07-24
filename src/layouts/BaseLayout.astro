@@ -2,7 +2,7 @@
 import '../styles/global.css';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
-import WhatsAppJoinGate from '../components/WhatsAppJoinGate.astro';
+import CommunityJoinGate from '../components/CommunityJoinGate.astro';
 import { communityConfig } from '../config/community';
 import { socialCardPath } from '../lib/socialCards';
 import { ClientRouter } from 'astro:transitions';
@@ -24,8 +24,10 @@ const {
 } = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.url.origin);
 const socialImageUrl = new URL(socialImage, Astro.url.origin);
+const htmlLanguage = communityConfig.locale.split('-')[0] || 'en';
+const openGraphLocale = communityConfig.locale.replace(/-/g, '_');
 ---
-<html lang="en">
+<html lang={htmlLanguage}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -36,7 +38,7 @@ const socialImageUrl = new URL(socialImage, Astro.url.origin);
     <meta property="og:type" content={socialType} />
     <meta property="og:url" content={canonical} />
     <meta property="og:site_name" content={communityConfig.name} />
-    <meta property="og:locale" content="en_GB" />
+    <meta property="og:locale" content={openGraphLocale} />
     <meta property="og:image" content={socialImageUrl} />
     {socialImageUrl.protocol === 'https:' && <meta property="og:image:secure_url" content={socialImageUrl} />}
     <meta property="og:image:type" content="image/png" />
@@ -59,6 +61,6 @@ const socialImageUrl = new URL(socialImage, Astro.url.origin);
       <slot />
     </main>
     <Footer />
-    <WhatsAppJoinGate />
+    {communityConfig.communityChannel.enabled && <CommunityJoinGate />}
   </body>
 </html>

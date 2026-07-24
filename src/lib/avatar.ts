@@ -12,6 +12,7 @@ export const AVATAR_OUTPUT_SIZE = 384;
 
 const supportedSourceTypes = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif', 'image/heic-sequence', 'image/heif-sequence']);
 const heicSourceTypes = new Set(['image/heic', 'image/heif', 'image/heic-sequence', 'image/heif-sequence']);
+const heicSequenceTypes = new Set(['image/heic-sequence', 'image/heif-sequence']);
 const genericSourceTypes = new Set(['', 'application/octet-stream']);
 const compressionQualities = [0.82, 0.72, 0.62, 0.52, 0.42];
 
@@ -46,6 +47,36 @@ export function validateAvatarFile(file: Pick<File, 'name' | 'size' | 'type'>) {
   if (file.size > AVATAR_SOURCE_MAX_BYTES) {
     throw new Error(`Choose an image that is ${AVATAR_SOURCE_MAX_LABEL} or smaller.`);
   }
+  if (heicSequenceTypes.has(file.type.toLowerCase())) {
+    throw new Error('Choose a single HEIC or HEIF photo, not an image sequence.');
+  }
+}
+
+export function heicPixelDimensions(buffer: ArrayBuffer) {
+  const view = new DataView(buffer);
+  const dimensions: Array<{ width: number; height: number }> = [];
+  for (let typeOffset = 4; typeOffset + 16 <= view.byteLength; typeOffset += 1) {
+    if (
+      view.getUint8(typeOffset) !== 0x69 ||
+      view.getUint8(typeOffset + 1) !== 0x73 ||
+      view.getUint8(typeOffset + 2) !== 0x70 ||
+      view.getUint8(typeOffset + 3) !== 0x65
+    ) continue;
+    const boxOffset = typeOffset - 4;
+    const boxSize = view.getUint32(boxOffset);
+    if (boxSize < 20 || boxOffset + boxSize > view.byteLength) continue;
+    const width = view.getUint32(typeOffset + 8);
+    const height = view.getUint32(typeOffset + 12);
+    if (width > 0 && height > 0) dimensions.push({ width, height });
+  }
+  return dimensions;
+}
+
+export function validateHeicMetadata(buffer: ArrayBuffer) {
+  const dimensions = heicPixelDimensions(buffer);
+  if (dimensions.length === 0) throw new Error('This HEIC photo has no readable size metadata.');
+  for (const { width, height } of dimensions) calculateSquareCrop(width, height);
+  return dimensions;
 }
 
 export function calculateSquareCrop(width: number, height: number): SquareCrop {
@@ -93,6 +124,7 @@ async function loadImage(source: Blob) {
 
 async function convertHeicToBitmap(file: File) {
   try {
+    validateHeicMetadata(await file.arrayBuffer());
     const { heicTo, isHeic } = await import('heic-to/csp');
     if (!(await isHeic(file))) throw new Error('The file does not contain a HEIC image.');
     const bitmap = await heicTo({ blob: file, type: 'bitmap' });

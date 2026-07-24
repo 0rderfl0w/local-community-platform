@@ -14,9 +14,10 @@ Community experience and media:
 
 - Added a redesigned, configuration-driven landing page with optional hero and membership imagery; no downstream branding assets are bundled upstream.
 - Added saved post filters, exact return navigation from post detail, and an author-first mobile feed with compact management controls.
-- Raised profile-photo intake to 10 MB and added HEIC/HEIF conversion for iPhone photos while preserving the existing compressed WebP output boundary.
-- Added a global WhatsApp rules gate whose community rules, eligibility language, and consent copy live in `src/config/community.ts`.
-- Added route-aware Open Graph and Twitter cards for the home page, invitations, posts, events, and member profiles using a theme-neutral generated design.
+- Raised profile-photo intake to 10 MB and added HEIC/HEIF conversion for iPhone photos while preserving the existing compressed WebP output boundary; sequence MIME types and oversized HEIC pixel metadata are rejected before decoding.
+- Added an optional, provider-neutral community-channel rules gate whose destination, labels, rules, eligibility language, and consent copy live in `src/config/community.ts`.
+- Added route-aware Open Graph and Twitter cards for the home page, invitations, posts, events, and member profiles using a theme-neutral generated design; non-canonical cache-busting requests are rejected before lookup or rendering.
+- Derived public document language, Open Graph locale, comment dates, and event-card dates from installation configuration.
 
 Repository governance and downstream separation:
 
@@ -43,6 +44,8 @@ Performance and delivery hardening:
 - Preserved Astro ClientRouter history metadata and closed persisted overlays during navigation.
 - Added focused frontend, migration, performance-architecture, output-manifest, and authorization contracts for the new boundaries.
 - Updated Astro, Vercel, and social-card dependencies and pinned patched transitive versions; the production dependency audit is clean.
+- Removed active Braga callback and channel destinations from tracked template defaults, replaced the branded favicon, and standardized Edge Function environment names.
+- Added LGPL/GPL license texts, exact corresponding-source links, and rebuild/relinking instructions for the browser HEIC decoder and its bundled libheif build.
 
 ## 0.1.2 — 2026-07-11
 

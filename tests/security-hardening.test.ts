@@ -18,7 +18,8 @@ describe('delivery security contracts', () => {
   test('auth redirects trust exact hosts instead of a Vercel wildcard', async () => {
     const config = await read('supabase/config.toml');
     expect(config).not.toContain('https://*.vercel.app');
-    expect(config).toContain('https://braga-ai-builders.vercel.app/auth/confirm');
+    expect(config).not.toContain('braga-ai-builders.vercel.app');
+    expect(config).toContain('http://localhost:4321/auth/confirm');
   });
 
   test('member profiles are opt-in and anonymous sessions stay out of member-only features', async () => {

@@ -165,9 +165,9 @@ async function markInviteDelivery(
 }
 
 Deno.serve(async (request) => {
-  const supabaseUrl = Deno.env.get('SUPABASE_URL') || Deno.env.get('BRAGA_SUPABASE_URL') || '';
-  const anonKey = Deno.env.get('SUPABASE_ANON_KEY') || Deno.env.get('BRAGA_SUPABASE_ANON_KEY') || '';
-  const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || Deno.env.get('BRAGA_SUPABASE_SERVICE_ROLE_KEY') || '';
+  const supabaseUrl = Deno.env.get('SUPABASE_URL') || '';
+  const anonKey = Deno.env.get('SUPABASE_ANON_KEY') || '';
+  const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
   const redirectTo = Deno.env.get('INVITE_REDIRECT_URL') || '';
   const communityName = Deno.env.get('COMMUNITY_NAME') || 'Local Community';
 

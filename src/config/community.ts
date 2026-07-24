@@ -6,8 +6,12 @@ export const communityConfig = {
   timeZoneLabel: 'Braga time',
   tagline: 'A local AI community',
   description: 'A Braga community for people using AI to solve real problems, build useful things, and help each other move faster.',
-  whatsappUrl: 'https://chat.whatsapp.com/GwhqmjtwcPT4vVmQmqqIRW',
-  whatsappCommunity: {
+  communityChannel: {
+    enabled: true,
+    providerName: 'WhatsApp',
+    url: 'https://chat.whatsapp.com/YOUR_INVITE_CODE',
+    joinLabel: 'Join the WhatsApp Community',
+    openLabel: 'Agree and open WhatsApp',
     name: 'Braga Area WhatsApp Community',
     groupName: 'Braga AI Builders WhatsApp Group',
     expectationsTitle: 'Braga Community WhatsApp Expectations',
@@ -19,6 +23,7 @@ export const communityConfig = {
     ],
     eligibility: 'Only people who currently live in Braga or a nearby town are eligible to join. Members are neighbours who may meet at everyday local events.',
     rulesConsentLabel: 'I agree to the community rules and confirm that I live in or around Braga.',
+    inviteConsentLabel: 'I agree to receive the private community invitation and use it only for joining this group.',
     expectations: [
       {
         title: 'No self-promotion',

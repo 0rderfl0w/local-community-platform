@@ -28,6 +28,9 @@ const expectedStaticPages = [
 for (const page of expectedStaticPages) {
   await access(path.join(staticRoot, page));
 }
+for (const license of ['licenses/GPL-3.0.txt', 'licenses/LGPL-3.0.txt']) {
+  await access(path.join(staticRoot, license));
+}
 
 const config = JSON.parse(await readFile(path.join(outputRoot, 'config.json'), 'utf8'));
 const expectedDynamicRoutes = [

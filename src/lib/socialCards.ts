@@ -23,6 +23,7 @@ const communityCity = communityConfig.city || 'the local area';
 const communityTagline = communityConfig.tagline || 'A local community';
 const communityDescription = communityConfig.description || `A home for ${communityName}.`;
 const communityTimeZone = communityConfig.timeZone || 'UTC';
+const communityLocale = communityConfig.locale || 'en-GB';
 
 const presets: Record<Exclude<SocialCardKind, 'post' | 'event' | 'member'>, SocialCardData> = {
   home: {
@@ -42,8 +43,8 @@ const presets: Record<Exclude<SocialCardKind, 'post' | 'event' | 'member'>, Soci
   },
   events: {
     label: 'Community events',
-    title: 'Meet. Learn. Build.',
-    description: `Meetups and gatherings organized by ${communityName}.`,
+    title: `What’s happening in ${communityCity}`,
+    description: communityConfig.home?.eventsBody ?? `Meetups and gatherings organized by ${communityName}.`,
   },
   members: {
     label: 'Community directory',
@@ -101,7 +102,7 @@ export function eventSocialCard(record: EventCardRecord): SocialCardData {
   const startsAt = new Date(record.starts_at);
   const date = Number.isNaN(startsAt.getTime())
     ? ''
-    : new Intl.DateTimeFormat('en-GB', {
+    : new Intl.DateTimeFormat(communityLocale, {
         day: 'numeric',
         month: 'long',
         year: 'numeric',

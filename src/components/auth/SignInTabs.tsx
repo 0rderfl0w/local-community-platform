@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
 import type { KeyboardEvent } from 'react';
+import { communityConfig } from '@/config/community';
 import InviteEmailForm from './InviteEmailForm';
 
 type AccessTab = 'signin' | 'signup';
@@ -10,6 +11,7 @@ const tabs: Array<{ id: AccessTab; label: string }> = [
 ];
 
 export default function SignInTabs() {
+  const communityChannel = communityConfig.communityChannel;
   const [activeTab, setActiveTab] = useState<AccessTab>('signin');
   const tabRefs = useRef<Record<AccessTab, HTMLButtonElement | null>>({ signin: null, signup: null });
 
@@ -72,16 +74,16 @@ export default function SignInTabs() {
             <p className="mt-2 text-sm leading-6 text-braga-100">Choose whichever route is easier.</p>
 
             <div className="mt-6 grid gap-3 sm:grid-cols-2">
-              <button
+              {communityChannel?.enabled && <button
                 type="button"
-                data-whatsapp-join
+                data-community-join
                 className="group w-full rounded-2xl border border-limewash/35 bg-limewash/[0.08] p-5 text-left transition hover:-translate-y-0.5 hover:border-limewash/70 hover:bg-limewash/[0.12]"
               >
-                <span className="text-xs font-black uppercase tracking-[0.16em] text-limewash">WhatsApp</span>
+                <span className="text-xs font-black uppercase tracking-[0.16em] text-limewash">{communityChannel.providerName}</span>
                 <strong className="mt-2 block text-lg text-white">Join the community</strong>
                 <span className="mt-2 block text-sm leading-6 text-braga-100">Meet the group and ask for an invite.</span>
-                <span className="mt-4 block text-sm font-bold text-limewash">Open WhatsApp →</span>
-              </button>
+                <span className="mt-4 block text-sm font-bold text-limewash">Open {communityChannel.providerName} →</span>
+              </button>}
 
               <div className="rounded-2xl border border-braga-300/25 bg-white/[0.025] p-5">
                 <span className="text-xs font-black uppercase tracking-[0.16em] text-braga-300">Know a member?</span>

@@ -10,6 +10,7 @@ import {
   socialCardPath,
   socialCardTitleSize,
 } from '@/lib/socialCards';
+import { validateSocialCardRequest } from '@/lib/socialCardRequest';
 
 const root = new URL('../', import.meta.url);
 const read = (path: string) => readFile(new URL(path, root), 'utf8');
@@ -21,6 +22,17 @@ describe('social sharing cards', () => {
     expect(socialCardPath('event', 'build-night')).toBe('/api/social-card.png?kind=event&v=1&slug=build-night');
     expect(socialCardPath('member', 'richard')).toBe('/api/social-card.png?kind=member&v=1&handle=richard');
     expect(socialCardPath('invite')).not.toContain('code');
+  });
+
+  test('rejects cache-bypass parameters and malformed identifiers before rendering', () => {
+    const validate = (query: string) => validateSocialCardRequest(new URL(`https://community.example/api/social-card.png${query}`));
+    expect(validate('?kind=home&v=1')).toEqual({ kind: 'home' });
+    expect(validate('?kind=post&v=1&slug=useful-post')).toEqual({ kind: 'post' });
+    expect(validate('?kind=member&v=1&handle=ana-martins')).toEqual({ kind: 'member' });
+    expect(validate('?kind=generic&nonce=random')).toBeNull();
+    expect(validate('?kind=home&v=999')).toBeNull();
+    expect(validate('?kind=post&v=1&slug=BAD')).toBeNull();
+    expect(validate('?kind=home&kind=posts&v=1')).toBeNull();
   });
 
   test('normalizes untrusted copy for bounded card overlays', () => {

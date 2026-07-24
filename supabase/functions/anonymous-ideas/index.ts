@@ -61,8 +61,8 @@ async function rpc<T>(url: string, serviceRoleKey: string, name: string, body: R
 }
 
 Deno.serve(async (request) => {
-  const supabaseUrl = Deno.env.get('SUPABASE_URL') || Deno.env.get('BRAGA_SUPABASE_URL') || '';
-  const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || Deno.env.get('BRAGA_SUPABASE_SERVICE_ROLE_KEY') || '';
+  const supabaseUrl = Deno.env.get('SUPABASE_URL') || '';
+  const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
   const redirectTo = Deno.env.get('INVITE_REDIRECT_URL') || '';
   if (!supabaseUrl || !serviceRoleKey || !redirectTo) return new Response(JSON.stringify({ error: 'Ideas service is not configured.' }), { status: 500, headers: { 'Content-Type': 'application/json' } });
 

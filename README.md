@@ -65,15 +65,20 @@ export const communityConfig = {
   timeZoneLabel: 'Your city time',
   tagline: 'A local community for shared interests',
   description: 'A short description of your community.',
-  whatsappUrl: 'https://chat.whatsapp.com/...',
-  whatsappCommunity: {
-    name: 'Your local WhatsApp community',
+  communityChannel: {
+    enabled: true,
+    providerName: 'Your chat provider',
+    url: 'https://your-provider.example/invite',
+    joinLabel: 'Join the community channel',
+    openLabel: 'Agree and open the channel',
+    name: 'Your local community channel',
     groupName: 'Your community group',
     expectationsTitle: 'Community expectations',
     introduction: 'Explain the purpose of these rules.',
     principles: ['Welcome people respectfully.', 'Protect member privacy.'],
     eligibility: 'Explain who may join.',
     rulesConsentLabel: 'I agree to the community rules and confirm I am eligible to join.',
+    inviteConsentLabel: 'I agree to receive and responsibly use the community invitation.',
     expectations: [
       { title: 'Keep invite links private', body: 'Do not publish private group links.' }
     ],

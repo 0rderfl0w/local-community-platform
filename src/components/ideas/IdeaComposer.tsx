@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { LuPlus, LuX } from 'react-icons/lu';
+import { communityConfig } from '@/config/community';
 import type { FormSubmitEvent } from '@/lib/dom';
 import { createIdea, type IdeaPostingMode } from '@/lib/ideas';
 import type { PostTagCatalogItem, RipCategory, RipTag } from '@/lib/types';
@@ -235,7 +236,7 @@ export default function IdeaComposer({ tagCatalog, tagCatalogLoading, tagCatalog
                   Post anonymously
                 </label>
                 {!signedIn && participationReady && anonymousPostsAllowed && signedOutPostsAllowed && <p className="mt-2 text-xs leading-5 text-braga-300">
-                  Membership is invite-only. <button type="button" data-whatsapp-join className="font-bold text-limewash hover:underline">Join the WhatsApp community</button> or ask someone you know who’s already a member for an invite. <button type="button" className="font-bold text-limewash hover:underline" onClick={startSignInFlow}>Already a member? Sign in</button>.
+                  Membership is invite-only. {communityConfig.communityChannel.enabled && <><button type="button" data-community-join className="font-bold text-limewash hover:underline">{communityConfig.communityChannel.joinLabel}</button> or </>}ask someone you know who’s already a member for an invite. <button type="button" className="font-bold text-limewash hover:underline" onClick={startSignInFlow}>Already a member? Sign in</button>.
                 </p>}
                 {!signedIn && participationReady && !signedOutPostsAllowed && <p className="mt-2 text-xs leading-5 text-amber-100">Posting while signed out is disabled. Sign in to share this post.</p>}
                 {!signedIn && participationReady && signedOutPostsAllowed && !anonymousPostsAllowed && <p className="mt-2 text-xs leading-5 text-amber-100">Anonymous posting is disabled. Sign in to share this post with your profile.</p>}

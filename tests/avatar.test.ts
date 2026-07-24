@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { calculateSquareCrop, isHeicAvatarFile, validateAvatarFile } from '@/lib/avatar';
+import { calculateSquareCrop, heicPixelDimensions, isHeicAvatarFile, validateAvatarFile, validateHeicMetadata } from '@/lib/avatar';
 
 const mebibyte = 1024 * 1024;
 
@@ -7,9 +7,22 @@ function fakeFile(type: string, size: number, name = 'avatar') {
   return { type, size, name } as File;
 }
 
+function heicMetadata(...dimensions: Array<{ width: number; height: number }>) {
+  const buffer = new ArrayBuffer(dimensions.length * 20);
+  const view = new DataView(buffer);
+  dimensions.forEach(({ width, height }, index) => {
+    const offset = index * 20;
+    view.setUint32(offset, 20);
+    for (const [byteOffset, value] of [...'ispe'].entries()) view.setUint8(offset + 4 + byteOffset, value.charCodeAt(0));
+    view.setUint32(offset + 12, width);
+    view.setUint32(offset + 16, height);
+  });
+  return buffer;
+}
+
 describe('native avatar preparation', () => {
   test('accepts supported source images at the 10 MB boundary', () => {
-    for (const type of ['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif', 'image/heic-sequence', 'image/heif-sequence']) {
+    for (const type of ['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif']) {
       expect(() => validateAvatarFile(fakeFile(type, 10 * mebibyte))).not.toThrow();
     }
   });
@@ -24,7 +37,8 @@ describe('native avatar preparation', () => {
       fakeFile('application/octet-stream', 1000, 'portrait.heif')
     ]) {
       expect(isHeicAvatarFile(file)).toBe(true);
-      expect(() => validateAvatarFile(file)).not.toThrow();
+      if (file.type.endsWith('-sequence')) expect(() => validateAvatarFile(file)).toThrow('single HEIC or HEIF photo');
+      else expect(() => validateAvatarFile(file)).not.toThrow();
     }
     expect(isHeicAvatarFile(fakeFile('image/png', 1000, 'portrait.png'))).toBe(false);
   });
@@ -48,5 +62,13 @@ describe('native avatar preparation', () => {
   test('rejects pathological image dimensions before drawing to canvas', () => {
     expect(() => calculateSquareCrop(12_001, 100)).toThrow('25 megapixels');
     expect(() => calculateSquareCrop(5_001, 5_000)).toThrow('25 megapixels');
+  });
+
+  test('checks HEIC pixel metadata before invoking the decoder', () => {
+    const safe = heicMetadata({ width: 4032, height: 3024 }, { width: 320, height: 240 });
+    expect(heicPixelDimensions(safe)).toEqual([{ width: 4032, height: 3024 }, { width: 320, height: 240 }]);
+    expect(() => validateHeicMetadata(safe)).not.toThrow();
+    expect(() => validateHeicMetadata(heicMetadata({ width: 6000, height: 5000 }))).toThrow('25 megapixels');
+    expect(() => validateHeicMetadata(new ArrayBuffer(20))).toThrow('no readable size metadata');
   });
 });

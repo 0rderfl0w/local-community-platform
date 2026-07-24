@@ -3,6 +3,7 @@ import { ImageResponse } from '@vercel/og';
 import { createElement, type CSSProperties } from 'react';
 import { communityConfig } from '@/config/community';
 import { publicRecordLookup } from '@/lib/public-server';
+import { validateSocialCardRequest } from '@/lib/socialCardRequest';
 import {
   eventSocialCard,
   memberSocialCard,
@@ -21,10 +22,14 @@ import {
 
 export const prerender = false;
 
-const kinds = new Set<SocialCardKind>(['home', 'invite', 'posts', 'post', 'events', 'event', 'members', 'member', 'generic']);
-const slugPattern = /^[a-z0-9][a-z0-9-]{2,159}$/;
-const handlePattern = /^[a-z0-9][a-z0-9-]{2,39}$/;
 const assetCache = new Map<string, Promise<ArrayBuffer>>();
+
+function errorResponse(message: string, status: 400 | 404) {
+  return new Response(message, {
+    status,
+    headers: { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store' },
+  });
+}
 
 function assetBuffer(url: URL) {
   const key = url.toString();
@@ -41,24 +46,21 @@ function assetBuffer(url: URL) {
   return request;
 }
 
-async function resolveCard(kind: SocialCardKind, url: URL): Promise<SocialCardData> {
+async function resolveCard(kind: SocialCardKind, url: URL): Promise<SocialCardData | null> {
   if (kind === 'post') {
     const slug = url.searchParams.get('slug') ?? '';
-    if (!slugPattern.test(slug)) return presetSocialCard(kind);
     const record = await publicRecordLookup<PostCardRecord>('ideas', 'slug', slug, 'slug,title,body,category');
-    return record.data ? postSocialCard(record.data) : presetSocialCard(kind);
+    return record.data ? postSocialCard(record.data) : record.available ? null : presetSocialCard(kind);
   }
   if (kind === 'event') {
     const slug = url.searchParams.get('slug') ?? '';
-    if (!slugPattern.test(slug)) return presetSocialCard(kind);
     const record = await publicRecordLookup<EventCardRecord>('events', 'slug', slug, 'slug,title,starts_at,location_name');
-    return record.data ? eventSocialCard(record.data) : presetSocialCard(kind);
+    return record.data ? eventSocialCard(record.data) : record.available ? null : presetSocialCard(kind);
   }
   if (kind === 'member') {
     const handle = url.searchParams.get('handle') ?? '';
-    if (!handlePattern.test(handle)) return presetSocialCard(kind);
     const record = await publicRecordLookup<MemberCardRecord>('public_profiles', 'handle', handle, 'handle,display_name,bio');
-    return record.data ? memberSocialCard(record.data) : presetSocialCard(kind);
+    return record.data ? memberSocialCard(record.data) : record.available ? null : presetSocialCard(kind);
   }
   return presetSocialCard(kind);
 }
@@ -183,9 +185,10 @@ function cardElement(card: SocialCardData) {
 
 export const GET: APIRoute = async ({ request }) => {
   const url = new URL(request.url);
-  const requestedKind = url.searchParams.get('kind') as SocialCardKind | null;
-  const kind = requestedKind && kinds.has(requestedKind) ? requestedKind : 'generic';
-  const card = await resolveCard(kind, url);
+  const validated = validateSocialCardRequest(url);
+  if (!validated) return errorResponse('Invalid social card request.', 400);
+  const card = await resolveCard(validated.kind, url);
+  if (!card) return errorResponse('Social card content not found.', 404);
   const regularFontUrl = new URL('/fonts/instrument-sans-regular.ttf', url.origin);
   const boldFontUrl = new URL('/fonts/instrument-sans-bold.ttf', url.origin);
 
