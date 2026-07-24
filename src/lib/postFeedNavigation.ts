@@ -3,7 +3,7 @@ import { isProfileHandle } from './profileHandle';
 import { RIP_CATEGORIES, normalizeRipTags } from './rips';
 import type { RipCategory, RipTag } from './types';
 
-export const POSTS_RETURN_STORAGE_KEY = 'braga:posts:return-path:v1';
+export const POSTS_RETURN_STORAGE_KEY = 'community:posts:return-path:v1';
 
 export type PostFeedFilterState = {
   view: PostFeedView;
@@ -59,7 +59,7 @@ export function buildPostFeedPath(state: PostFeedFilterState) {
 export function safePostFeedPath(value: string | null) {
   if (!value) return '/posts';
   try {
-    const base = new URL('https://braga.invalid');
+    const base = new URL('https://community.invalid');
     const parsed = new URL(value, base);
     if (parsed.origin !== base.origin || parsed.pathname !== '/posts') return '/posts';
     return buildPostFeedPath(parsePostFeedFilters(parsed.search));
