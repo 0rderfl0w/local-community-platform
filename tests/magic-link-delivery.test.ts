@@ -147,7 +147,7 @@ describe('magic-link delivery errors', () => {
     expect(result.response.status).toBe(200);
     expect(await result.response.json()).toEqual({
       ok: true,
-      message: 'Check your email for your one-time Braga AI Builders link.'
+      message: 'Check your email for your one-time Test Community link.'
     });
     expect(result.completionCalls).toBe(3);
     expect(result.rollbackCalls).toBe(0);
