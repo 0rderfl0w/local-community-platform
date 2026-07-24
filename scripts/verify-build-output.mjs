@@ -32,6 +32,7 @@ for (const page of expectedStaticPages) {
 const config = JSON.parse(await readFile(path.join(outputRoot, 'config.json'), 'utf8'));
 const expectedDynamicRoutes = [
   '^/api/event-preview/?$',
+  '^/api/social-card\\.png$',
   '^/events/([^/]+?)/?$',
   '^/ideas/([^/]+?)/?$',
   '^/ideas/?$',
