@@ -380,7 +380,7 @@ describe('launch frontend contracts', () => {
   test('the public bug-report dialog requires useful detail without requiring identity', async () => {
     const dialog = await read('src/components/bug-reports/BugReportDialog.tsx');
     const client = await read('src/lib/bugReports.ts');
-    expect(dialog).toContain('🐞 Report a Bug');
+    expect(dialog).toContain('Report a bug');
     expect(dialog).toContain('how you found the bug');
     expect(dialog).toContain('required');
     expect(dialog).toContain('minLength={20}');
