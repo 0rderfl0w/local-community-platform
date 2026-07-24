@@ -42,6 +42,7 @@ Performance and delivery hardening:
 - Skipped organizer checks for signed-out visitors and lazy-loaded the bug-report dialog.
 - Preserved Astro ClientRouter history metadata and closed persisted overlays during navigation.
 - Added focused frontend, migration, performance-architecture, output-manifest, and authorization contracts for the new boundaries.
+- Updated Astro, Vercel, and social-card dependencies and pinned patched transitive versions; the production dependency audit is clean.
 
 ## 0.1.2 — 2026-07-11
 
