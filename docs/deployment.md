@@ -151,7 +151,7 @@ Every listed constraint must be validated; both Auth triggers must exist; all fi
 
 If migration `023` fails before commit, leave the migration file unchanged. Reconcile the installation's data through separately reviewed maintenance SQL, then rerun from the automatically rolled-back schema. If it commits but a later step fails, do not attempt a down migration. Keep the database in place, retain the compatibility RPC, roll forward the Edge Function fix, and hold or revert the frontend until verification passes.
 
-### Community feature and performance migrations (`024`–`036`)
+### Community feature and performance migrations (`024`–`038`)
 
 Apply migrations in numeric order after `023`:
 
@@ -161,9 +161,13 @@ Apply migrations in numeric order after `023`:
 - `029`–`031`: community voting, lifecycle hardening, and organizer-controlled public visibility;
 - `032`: nested post comments with public-safe author projection;
 - `033`–`034`: super-admin post participation controls and review hardening;
-- `035`–`036`: one privacy-safe aggregate Posts feed RPC, including both member and anonymous upvotes.
+- `035`–`036`: one privacy-safe aggregate Posts feed RPC, including both member and anonymous upvotes;
+- `037`: centralized super-admin Voting and event-creation availability, plus event RLS separation;
+- `038`: suspension-safe setting changes and serialized event creation with database creator attribution.
 
 These are forward-only migrations. Do not rewrite a migration after it has been applied. Verify function signatures, grants, Storage policies, and the `list_post_feed` response through read-only catalog/API checks after deployment. Voting is hidden or shown through its organizer setting; do not remove its database boundary to disable it.
+
+For a `v0.2.0` → `v0.3.0` upgrade, back up the database and Storage first, apply `037_super_admin_feature_settings.sql`, then `038_race_safe_feature_controls.sql`, and verify both migrations before deploying the `v0.3.0` frontend. If either migration fails, keep the existing frontend in place and roll forward with separately reviewed SQL; do not rewrite an applied migration or invent a down migration. Afterward, confirm `/admin/settings` loads for a super admin, an ordinary admin cannot mutate community settings, existing flag values were preserved, and event creation is still enabled unless a super admin deliberately turned it off.
 
 Before migration `028`, inspect any existing `avatars` bucket:
 

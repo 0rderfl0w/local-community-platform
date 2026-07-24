@@ -2,6 +2,19 @@
 
 ## Unreleased
 
+## 0.3.0 — 2026-07-24
+
+Community-owned feature settings:
+
+- Added one super-admin-only `/admin/settings` surface for Voting, event creation, anonymous posting, signed-out posting, anonymous commenting, and anonymous replies.
+- Kept every capability installed while moving community-wide availability decisions out of individual organizer tools and into one predictable settings screen.
+- Restricted Voting and event-creation setting changes to active super admins while ordinary admins retain content and event-management access.
+- Added a database-backed event-creation switch that preserves existing events but blocks new inserts when disabled, including stale or bypassed clients.
+- Serialized event creation against concurrent setting changes and organizer suspension, and stamped `created_by` at the database boundary.
+- Preserved existing installation behavior by seeding all included feature settings enabled and failing closed when a setting cannot be loaded.
+
+Upgrade from `v0.2.0`: back up the installation, apply migrations `037` and `038` in order, verify the new RPCs and trigger, then deploy the `v0.3.0` frontend. Do not deploy the new frontend against a database that stops at migration `036`.
+
 ## 0.2.0 — 2026-07-24
 
 Authentication and invitation clarity:

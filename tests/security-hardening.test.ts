@@ -119,8 +119,9 @@ describe('delivery security contracts', () => {
     expect(submitFunction).not.toContain('selected_vote.closes_at <= now()');
   });
 
-  test('voting visibility is private, admin-controlled, and enforced by public RPCs', async () => {
+  test('voting visibility is private, super-admin-controlled, and enforced by public RPCs', async () => {
     const migration = await read('supabase/migrations/031_voting_visibility_toggle.sql');
+    const hardening = await read('supabase/migrations/038_race_safe_feature_controls.sql');
     const publicList = migration.slice(
       migration.indexOf('create or replace function public.list_public_community_votes()'),
       migration.indexOf('create or replace function public.submit_community_ballot(')
@@ -129,15 +130,22 @@ describe('delivery security contracts', () => {
       migration.indexOf('create or replace function public.submit_community_ballot('),
       migration.indexOf("revoke all on function public.get_voting_feature_access()")
     );
+    const finalSetter = hardening.slice(
+      hardening.indexOf('create or replace function public.admin_set_voting_feature_enabled'),
+      hardening.indexOf('-- The RLS insert policy remains defense in depth')
+    );
     expect(migration).toContain('create table public.community_feature_flags');
     expect(migration).toContain('alter table public.community_feature_flags enable row level security');
     expect(migration).toContain('revoke all on table public.community_feature_flags from public, anon, authenticated');
     expect(migration).toContain('grant all privileges on table public.community_feature_flags to service_role');
     expect(migration).toContain('create or replace function public.get_voting_feature_access()');
-    expect(migration).toContain('create or replace function public.admin_set_voting_feature_enabled(p_enabled boolean)');
-    expect(migration).toContain("if not public.is_admin() then");
+    expect(hardening).toContain('create or replace function public.admin_set_voting_feature_enabled(p_enabled boolean)');
+    expect(finalSetter).toContain("profile.role = 'super_admin'");
+    expect(finalSetter).toContain('profile.suspended_at is null');
+    expect(finalSetter).toContain('for share');
+    expect(finalSetter).not.toContain('public.is_admin()');
     expect(migration).toContain('grant execute on function public.get_voting_feature_access() to anon, authenticated');
-    expect(migration).toContain('grant execute on function public.admin_set_voting_feature_enabled(boolean) to authenticated');
+    expect(hardening).toContain('grant execute on function public.admin_set_voting_feature_enabled(boolean) to authenticated');
     expect(publicList).toContain('and (access.is_enabled or access.viewer_is_admin)');
     expect(publicList).toContain('and access.is_enabled');
     expect(ballotSubmit).toContain('for share;');

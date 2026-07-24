@@ -17,7 +17,8 @@ Local Community Platform is the canonical upstream repository. Braga is maintain
 - Route-aware Open Graph and Twitter cards for community pages, posts, events, invitations, and member profiles
 - Optional public community voting with time-bounded single-choice ballots and per-ballot anonymity
 - Public events that send RSVP traffic to an external event page
-- Organizer tools for invitations, events, post participation controls, voting, moderation, and a private member database
+- Organizer tools for invitations, events, voting, moderation, and a private member database
+- Centralized super-admin settings for Voting, event creation, anonymous posting, signed-out posting, anonymous comments, and anonymous replies
 - Super-admin controls for assigning admins, suspending access, and deleting members
 - Public bug reporting with optional contact details, organizer triage, and optional email notifications
 - Private-by-default profiles, Row Level Security, restricted RPCs, and Edge Functions

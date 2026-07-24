@@ -58,7 +58,7 @@ Document backup frequency, retention, encryption, responsible owner, and the dat
 
 ## Restore order
 
-1. Create a new Supabase project and apply migrations `001`–`036` in order.
+1. Create a new Supabase project and apply migrations `001`–`038` in order.
 2. Restore Auth users and identities with a supported Supabase process before rows whose foreign keys reference `auth.users`.
 3. Restore parent records: `profiles`, `invites`, `ideas`, `events`, `bug_reports`, `post_tags`, `community_votes`, and `community_feature_flags`.
 4. Restore dependent records: `invite_redemptions`, post votes/bookmarks, anonymous post activity, event registrations, community vote options/ballots, and comments/upvotes. Restore parent comments before replies or use a reviewed transaction that defers the relevant constraints.
